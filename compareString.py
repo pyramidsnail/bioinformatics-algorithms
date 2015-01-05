@@ -102,39 +102,53 @@ def longestpathDAG(graph, startnode, endnode):
     return dist[endnode], maxpath
 def blosum62():
     matrix = {}
-    f = open('BLOSUM62,txt','r')
+    f = open('BLOSUM62.txt','r')
     lines = f.readlines()
     amino = ['A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y']
     for i in xrange(1,21):
         tmp = lines[i].strip().split()
         for j in xrange(1,21):
-            matrix[(amino[i-1],amino[j-1])]=tmp[j]
+            matrix[(amino[i-1],amino[j-1])]=int(tmp[j])
     return matrix
 
-def global_align(x,y,score=blosum62(),indel):
+def global_align(x,y,score,indel):
+    # M = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
+    # X = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
+    # Y = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
+    # for i in xrange(1,len(x)+1):
+    #     M[i][0] = -float('inf')
+    #     X[i][0] = -float('inf')
+    #     Y[i][0] = i*indel
+    # for i in xrange(1,len(y)+1):
+    #     M[0][i] = -float('inf')
+    #     X[0][i] = i*indel
+    #     Y[0][i] = -float('inf')
+    # for i in xrange(1, len(x)+1):
+    #     for j in xrange(1, len(y)+1):
+    #         M[i][j] = score[(x[i-1],y[j-1])]+max(
+    #             M[i-1][j-1], X[i-1][j-1], Y[i-1][j-1])
+    #         X[i][j] = indel + max(
+    #             M[i][j-1], X[i][j-1], Y[i][j-1])
+    #         Y[i][j] = indel + max(
+    #             M[i-1][j], X[i-1][j], Y[i-1][j])
+    # opt = max(M[len(x)][len(y)], X[len(x)][len(y)], Y[len(x)][len(y)])
     M = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
-    X = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
-    Y = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
     for i in xrange(1,len(x)+1):
-        M[i][0] = -float('inf')
-        X[i][0] = -float('inf')
-        Y[i][0] = i*indel
-    for i in xrange(1,len(y)+1):
-        M[0][i] = -float('inf')
-        X[0][i] = i*indel
-        Y[0][i] = -float('inf')
+        M[i][0] = indel
+    for i in xrange(1, len(y)+1):
+        M[0][i] = indel
     for i in xrange(1, len(x)+1):
         for j in xrange(1, len(y)+1):
-            M[i][j] = score[(x[i-1],y[i-1])]+max(
-                M[i-1][j-1], X[i-1][j-1], Y[i-1][j-1])
-            X[i][j] = indel + max(
-                M[i][j-1], X[i][j-1], Y[i][j-1])
-            Y[i][j] = indel + max(
-                M[i-1][j], X[i-1][j], Y[i-1][j])
-            
+            M[i][j] = max((M[i-1][j-1]+score[(x[i-1],y[j-1])]),
+                          (M[i-1][j]+indel), (M[i][j-1]+indel))
+    return M[len(x)][len(y)]
 
 if __name__ =="__main__":
-
+    f = open('test','r')
+    lines = f.readlines()
+    x = lines[0].strip()
+    y = lines[1].strip()
+    print global_align(x, y, blosum62(), -5)
 
 
     
