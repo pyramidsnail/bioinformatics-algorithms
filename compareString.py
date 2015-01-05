@@ -102,29 +102,38 @@ def longestpathDAG(graph, startnode, endnode):
     return dist[endnode], maxpath
                 
 
+def global_align(x,y,score):
+    M = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
+    X = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
+    Y = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]x
+
 if __name__ =="__main__":
-    f = open("245_7",'r')
-    lines = f.readlines()
-    startnode = int(lines[0].strip())
-    endnode = int(lines[1].strip())
-    graph = {}
-    max_num = 0
-    for i in xrange(2,len(lines)):
-        start = int(lines[i].strip().split("->")[0])
-        end = int(lines[i].strip().split("->")[1].split(":")[0])
-        max_num = max(start, end)
-        weight = int(lines[i].strip().split("->")[1].split(":")[1])
-        if start in graph:
-            graph[start].append((end,weight))
-        else:
-            graph[start] =[ (end, weight)]
-        for i in xrange(max_num+1):
-            if not i in graph:
-                graph[i]=[]
-    maxdist, maxpath = longestpathDAG(graph, startnode, endnode)
-    print maxdist
-    maxpath = [str(i) for i in maxpath]
-    print  "->".join(maxpath)
+
+
+
+    
+    # f = open("245_7",'r')
+    # lines = f.readlines()
+    # startnode = int(lines[0].strip())
+    # endnode = int(lines[1].strip())
+    # graph = {}
+    # max_num = 0
+    # for i in xrange(2,len(lines)):
+    #     start = int(lines[i].strip().split("->")[0])
+    #     end = int(lines[i].strip().split("->")[1].split(":")[0])
+    #     max_num = max(start, end)
+    #     weight = int(lines[i].strip().split("->")[1].split(":")[1])
+    #     if start in graph:
+    #         graph[start].append((end,weight))
+    #     else:
+    #         graph[start] =[ (end, weight)]
+    #     for i in xrange(max_num+1):
+    #         if not i in graph:
+    #             graph[i]=[]
+    # maxdist, maxpath = longestpathDAG(graph, startnode, endnode)
+    # print maxdist
+    # maxpath = [str(i) for i in maxpath]
+    # print  "->".join(maxpath)
     
 
 
