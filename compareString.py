@@ -100,12 +100,38 @@ def longestpathDAG(graph, startnode, endnode):
     maxpath.reverse()
  
     return dist[endnode], maxpath
-                
+def blosum62():
+    matrix = {}
+    f = open('BLOSUM62,txt','r')
+    lines = f.readlines()
+    amino = ['A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y']
+    for i in xrange(1,21):
+        tmp = lines[i].strip().split()
+        for j in xrange(1,21):
+            matrix[(amino[i-1],amino[j-1])]=tmp[j]
+    return matrix
 
-def global_align(x,y,score):
+def global_align(x,y,score=blosum62(),indel):
     M = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
     X = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
-    Y = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]x
+    Y = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
+    for i in xrange(1,len(x)+1):
+        M[i][0] = -float('inf')
+        X[i][0] = -float('inf')
+        Y[i][0] = i*indel
+    for i in xrange(1,len(y)+1):
+        M[0][i] = -float('inf')
+        X[0][i] = i*indel
+        Y[0][i] = -float('inf')
+    for i in xrange(1, len(x)+1):
+        for j in xrange(1, len(y)+1):
+            M[i][j] = score[(x[i-1],y[i-1])]+max(
+                M[i-1][j-1], X[i-1][j-1], Y[i-1][j-1])
+            X[i][j] = indel + max(
+                M[i][j-1], X[i][j-1], Y[i][j-1])
+            Y[i][j] = indel + max(
+                M[i-1][j], X[i-1][j], Y[i-1][j])
+            
 
 if __name__ =="__main__":
 
