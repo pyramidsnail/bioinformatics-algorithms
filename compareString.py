@@ -111,45 +111,118 @@ def blosum62():
             matrix[(amino[i-1],amino[j-1])]=int(tmp[j])
     return matrix
 
+def pam250():
+    matrix = {}
+    f = open('PAM250.txt','r')
+    lines = f.readlines()
+    amino = ['A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y']
+    for i in xrange(1,21):
+        tmp = lines[i].strip().split()
+        for j in xrange(1,21):
+            matrix[(amino[i-1],amino[j-1])]=int(tmp[j])
+    return matrix
+
 def global_align(x,y,score,indel):
-    # M = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
-    # X = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
-    # Y = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
-    # for i in xrange(1,len(x)+1):
-    #     M[i][0] = -float('inf')
-    #     X[i][0] = -float('inf')
-    #     Y[i][0] = i*indel
-    # for i in xrange(1,len(y)+1):
-    #     M[0][i] = -float('inf')
-    #     X[0][i] = i*indel
-    #     Y[0][i] = -float('inf')
-    # for i in xrange(1, len(x)+1):
-    #     for j in xrange(1, len(y)+1):
-    #         M[i][j] = score[(x[i-1],y[j-1])]+max(
-    #             M[i-1][j-1], X[i-1][j-1], Y[i-1][j-1])
-    #         X[i][j] = indel + max(
-    #             M[i][j-1], X[i][j-1], Y[i][j-1])
-    #         Y[i][j] = indel + max(
-    #             M[i-1][j], X[i-1][j], Y[i-1][j])
-    # opt = max(M[len(x)][len(y)], X[len(x)][len(y)], Y[len(x)][len(y)])
     M = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
     for i in xrange(1,len(x)+1):
-        M[i][0] = indel
+        M[i][0] = indel*i
     for i in xrange(1, len(y)+1):
-        M[0][i] = indel
+        M[0][i] = indel*i
     for i in xrange(1, len(x)+1):
         for j in xrange(1, len(y)+1):
             M[i][j] = max((M[i-1][j-1]+score[(x[i-1],y[j-1])]),
                           (M[i-1][j]+indel), (M[i][j-1]+indel))
-    return M[len(x)][len(y)]
+
+    i, j = len(x), len(y)
+    s, t = "", ""
+    while i>0 or j>0:
+        if M[i][j] == M[i-1][j]+indel:
+            s = x[i-1]+s
+            t = '-'+t
+            i -= 1
+        elif M[i][j] == M[i][j-1]+indel:
+            s = '-'+s
+            t = y[j-1]+t
+            j -= 1
+        else:
+            s = x[i-1]+s
+            t = y[j-1]+t
+            i -= 1
+            j -= 1
+    return M[len(x)][len(y)], s, t
+
+def local_align(x,y,score,indel):
+    best = 0
+    opt = (0,0)
+    M = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
+    for i in xrange(1, len(x)+1):
+        for j in xrange(1, len(y)+1):
+            M[i][j] = max((M[i-1][j-1]+score[(x[i-1],y[j-1])]),
+                          (M[i-1][j]+indel), (M[i][j-1]+indel), 0)
+
+            if M[i][j]>best:
+                best = M[i][j]
+                opt = (i,j)
+    i, j = opt
+    s, t = "", ""
+    while (i>0 or j>0) and M[i][j]!=0 :
+        if M[i][j] == M[i-1][j]+indel:
+            s = x[i-1]+s
+            t = '-'+t
+            i -= 1
+        elif M[i][j] == M[i][j-1]+indel:
+            s = '-'+s
+            t = y[j-1]+t
+            j -= 1
+        else:
+            s = x[i-1]+s
+            t = y[j-1]+t
+            i -= 1
+            j -= 1
+    return best, s, t
+
+def editdistance(x,y):
+    M = [[0 for i in xrange(len(y)+1)]for i in xrange(len(x)+1)]
+    for i in xrange(1,len(x)+1):
+        M[i][0] = (-1)*i
+    for i in xrange(1, len(y)+1):
+        M[0][i] = (-1)*i
+    for i in xrange(1, len(x)+1):
+        for j in xrange(1, len(y)+1):
+            score = 0 if x[i-1]==y[j-1] else -1
+            M[i][j] = max((M[i-1][j-1]+score),
+                          (M[i-1][j]-1), (M[i][j-1]-1))
+    return -M[len(x)][len(y)]
+
+def fitting_alignment(v, w):
+    s = [[0 for i in xrange(len(w+1))] for i in xrange(v+1)]
+    backtrack = [[0 for i in xrange(len(w+1))] for i in xrange(v+1)]
+
+    for i in xrange(1,len(v)+1):
+        for j in xrange(1, len(w)+1):
+            scores = = [s[i-1][j]-1, s[i][j-1]-1,
+                          s[i-1][j-1]+1 if v[i-1]==w[j-1] else s[i-1][j-1]+1 ]
+            s[i][j] = max(scoresx)
+            backtrack[i][j] = scores.index(s[i][j])
+
 
 if __name__ =="__main__":
-    f = open('test','r')
+    f = open("248_3","r")
     lines = f.readlines()
     x = lines[0].strip()
     y = lines[1].strip()
-    print global_align(x, y, blosum62(), -5)
+    print editdistance(x,y)
 
+    
+    # f = open('247_9','r')
+    # lines = f.readlines()
+    # x = lines[0].strip()
+    # y = lines[1].strip()
+    # # score, s, t = global_align(x, y, blosum62(), -5)
+    # score, s, t = local_align(x, y, pam250(), -5)
+    # print score
+    # print s
+    # print t
 
     
     # f = open("245_7",'r')
