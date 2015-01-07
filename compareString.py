@@ -195,23 +195,82 @@ def editdistance(x,y):
     return -M[len(x)][len(y)]
 
 def fitting_alignment(v, w):
-    s = [[0 for i in xrange(len(w+1))] for i in xrange(v+1)]
-    backtrack = [[0 for i in xrange(len(w+1))] for i in xrange(v+1)]
+    s = [[0 for i in xrange(len(w)+1)] for i in xrange(len(v)+1)]
+    backtrack = [[0 for i in xrange(len(w)+1)] for i in xrange(len(v)+1)]
 
     for i in xrange(1,len(v)+1):
         for j in xrange(1, len(w)+1):
-            scores = = [s[i-1][j]-1, s[i][j-1]-1,
-                          s[i-1][j-1]+1 if v[i-1]==w[j-1] else s[i-1][j-1]+1 ]
-            s[i][j] = max(scoresx)
+            scores =  [s[i-1][j]-1, s[i][j-1]-1,
+                          s[i-1][j-1] + [-1, 1][v[i-1] == w[j-1]]]
+            s[i][j] = max(scores)
             backtrack[i][j] = scores.index(s[i][j])
+    j = len(w)
+    i =max(enumerate([s[row][j] for row in xrange(len(w), len(v))]),
+           key=lambda x: x[1])[0]+len(w)
+    max_score = str(s[i][j])
+    v_aligned, w_aligned = v[:i],w[:j]
+    insert_indel = lambda word, i: word[:i]+'-'+word[i:]
+    # backtracking to find the fitting alignment
+    while i*j !=0:
+        if backtrack[i][j]==0:
+            i -= 1
+            w_aligned = insert_indel(w_aligned, j)
+        elif backtrack[i][j] == 1:
+            j -= 1
+            v_aligned = insert_indel(v_aligned,i)
+        elif backtrack[i][j] == 2:
+            i -= 1
+            j -= 1
+    v_aligned = v_aligned[i:]
+    return max_score, v_aligned, w_aligned
 
+def overlap_alignment(v,w):
+    best_score = -float("inf")
+    best_backtracking = []
+    for x in xrange(len(v)):
+        for y in xrange(2,len(w)):
+            suffixv = v[x:]
+            prefixw = w[:y]
+            s = [[0 for i in xrange(len(prefixw)+1)] for i in xrange(len(suffixv)+1)]
+            backtrack = [[0 for i in xrange(len(prefixw)+1)] for i in xrange(len(suffixv)+1)]
+            # initialize the border of the matrix score
+            for i in xrange(1,len(suffixv)):
+                s[i][0] = (-2)*i
+            for i in xrange(1,len(prefixw)):
+                s[0][i] = (-2)*i
+            for i in xrange(1,len(suffixv)+1):
+                for j in xrange(1, len(prefixw)+1):
+                    scores =  [s[i-1][j]-1, s[i][j-1]-1,
+                               s[i-1][j-1] + [-2, 1][v[i-1] == w[j-1]]]
+                    s[i][j] = max(scores)
+                    backtrack[i][j] = scores.index(s[i][j])
+            if s[len(suffixv)][len(prefixw)]>best_score:
+                best_score=s[len(suffixv)][len(prefixw)]
+                best_backtracking = s
+    return str(best_score)
 
 if __name__ =="__main__":
-    f = open("248_3","r")
-    lines = f.readlines()
-    x = lines[0].strip()
-    y = lines[1].strip()
-    print editdistance(x,y)
+    # f = open("test","r")
+    # lines = f.readlines()
+    # v = lines[0].strip()
+    # w = lines[1].strip()
+    # print overlap_alignment(v,w)
+    # #print "\n".join(fitting_alignment(v,w))
+
+
+
+    # f = open("248_5","r")
+    # lines = f.readlines()
+    # v = lines[0].strip()
+    # w = lines[1].strip()
+    # print "\n".join(fitting_alignment(v,w))
+
+
+    # f = open("248_3","r")
+    # lines = f.readlines()
+    # x = lines[0].strip()
+    # y = lines[1].strip()
+    # print editdistance(x,y)
 
     
     # f = open('247_9','r')
@@ -225,28 +284,30 @@ if __name__ =="__main__":
     # print t
 
     
-    # f = open("245_7",'r')
-    # lines = f.readlines()
-    # startnode = int(lines[0].strip())
-    # endnode = int(lines[1].strip())
-    # graph = {}
-    # max_num = 0
-    # for i in xrange(2,len(lines)):
-    #     start = int(lines[i].strip().split("->")[0])
-    #     end = int(lines[i].strip().split("->")[1].split(":")[0])
-    #     max_num = max(start, end)
-    #     weight = int(lines[i].strip().split("->")[1].split(":")[1])
-    #     if start in graph:
-    #         graph[start].append((end,weight))
-    #     else:
-    #         graph[start] =[ (end, weight)]
-    #     for i in xrange(max_num+1):
-    #         if not i in graph:
-    #             graph[i]=[]
-    # maxdist, maxpath = longestpathDAG(graph, startnode, endnode)
-    # print maxdist
-    # maxpath = [str(i) for i in maxpath]
-    # print  "->".join(maxpath)
+    f = open("test",'r')
+    lines = f.readlines()
+    startnode = lines[0].strip()
+    endnode = lines[1].strip()
+    graph = {}
+    max_num = 0
+    nodelist = []
+    for i in xrange(2,len(lines)):
+        start = lines[i].strip().split("->")[0].strip()
+        end = lines[i].strip().split("->")[1].split(":")[0].strip()
+        nodelist.extend([start, end])
+        #max_num = max(start, end)
+        weight = int(lines[i].strip().split("->")[1].split(":")[1])
+        if start in graph:
+            graph[start].append((end,weight))
+        else:
+            graph[start] =[ (end, weight)]
+        for i in nodelist:
+            if not i in graph:
+                graph[i]=[]
+    maxdist, maxpath = longestpathDAG(graph, startnode, endnode)
+    print maxdist
+    maxpath = [str(i) for i in maxpath]
+    print  "->".join(maxpath)
     
 
 
