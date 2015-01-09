@@ -279,12 +279,15 @@ def overlap_alignment(v,w):
     # return str(best_score)
 
 if __name__ =="__main__":
-    f = open("248_7","r")
-    lines = f.readlines()
-    v = lines[0].strip()
-    w = lines[1].strip()
-    #print overlap_alignment(v,w)
-    print "\n".join(overlap_alignment(v,w))
+
+
+
+    # f = open("248_7","r")
+    # lines = f.readlines()
+    # v = lines[0].strip()
+    # w = lines[1].strip()
+    # #print overlap_alignment(v,w)
+    # print "\n".join(overlap_alignment(v,w))
 
 
 
