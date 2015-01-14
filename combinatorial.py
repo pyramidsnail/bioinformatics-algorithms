@@ -31,9 +31,9 @@ def greedysorting(p):
 def breakpoints(p):
     count = 0
     p.insert(0, 0)
-    p.append(len(p)+1)
-    for i in xrange(len(p)+1):
-        if p[i+1]-p[1]!=1:
+    p.append(len(p))
+    for i in xrange(len(p)-1):
+        if p[i+1]-p[i]!=1:
             count += 1
     return count
         
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     #     sys.stdout.write('(')
     #     print ' '.join(i),
     #     sys.stdout.write(')'+'\n')
-    f = open('dataset_286_3.txt','r')
+    f = open('287_4','r')
     line = f.readline().strip().rstrip(')').lstrip('(')
     p = line.split()
     p = [int(x) for x in p]
