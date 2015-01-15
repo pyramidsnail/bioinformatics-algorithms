@@ -177,6 +177,16 @@ def tobreakongenome(p,i0,j0,i1,j1):
     genomegraph = tobreakongenomegraph(genomegraph,i0,j0,i1,j1)
     res = graph2genome(genomegraph)
     return res
+
+def kmer(k, p, q):
+    pdic = {}
+    qdic = {}
+    for i in xrange(len(p)-k-1):
+        pdic[i]=p[i:i+k]
+    for i in xrange(len(q)-k-1):
+        qdic[i]=q[i:i+k]
+    qreverse = {}
+    
     
 
 if __name__ == '__main__':
@@ -195,20 +205,20 @@ if __name__ == '__main__':
     # print tobreakongenome([graph], points[0],points[1], points[2],points[3])
     
 
-    f = open('dataset_288_4.txt','r')
-    lines = f.readlines()
-    def buildgenome(line):
-        genome = []
-        line = line.strip().rstrip(')').lstrip('(')
-        items = line.split(')(')
-        for item in items:
-            lst = item.split()
-            lst = [int(x) for x in lst]
-            genome.append(lst)
-        return genome
-    p = buildgenome(lines[0])
-    q = buildgenome(lines[1])
-    print tobreakdistance(p,q)
+    # f = open('dataset_288_4.txt','r')
+    # lines = f.readlines()
+    # def buildgenome(line):
+    #     genome = []
+    #     line = line.strip().rstrip(')').lstrip('(')
+    #     items = line.split(')(')
+    #     for item in items:
+    #         lst = item.split()
+    #         lst = [int(x) for x in lst]
+    #         genome.append(lst)
+    #     return genome
+    # p = buildgenome(lines[0])
+    # q = buildgenome(lines[1])
+    # print tobreakdistance(p,q)
 
     
     # f = open('dataset_286_3.txt','r')
