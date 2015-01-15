@@ -1,6 +1,8 @@
 import sys, os, re, copy
 from string import maketrans
 
+sys.setrecursionlimit(100000)
+
 def ksorting(p, i, k):
     transtab = maketrans('+-','-+')
     newp = copy.deepcopy(p)
@@ -183,30 +185,30 @@ if __name__ == '__main__':
     # print tobreakongenome([[+1,-2,-4,+3]],1,6,3,8)
 
 
-    f = open('test','r')
-    lines = f.readlines()
-    graph = lines[0].strip().lstrip('(').rstrip(')')
-    graph = graph.split()
-    graph = [int(x) for x in graph]
-    points = lines[1].strip().split()
-    points = [int(x) for x in points]
-    print tobreakongenome(graph, points[0],points[1], points[2],points[3])
-    
-
     # f = open('test','r')
     # lines = f.readlines()
-    # def buildgenome(line):
-    #     genome = []
-    #     line = line.strip().rstrip(')').lstrip('(')
-    #     items = line.split(')(')
-    #     for item in items:
-    #         lst = item.split()
-    #         lst = [int(x) for x in lst]
-    #         genome.append(lst)
-    #     return genome
-    # p = buildgenome(lines[0])
-    # q = buildgenome(lines[1])
-    # print tobreakdistance(p,q)
+    # graph = lines[0].strip().lstrip('(').rstrip(')')
+    # graph = graph.split()
+    # graph = [int(x) for x in graph]
+    # points = lines[1].strip().split(',')
+    # points = [int(x) for x in points]
+    # print tobreakongenome([graph], points[0],points[1], points[2],points[3])
+    
+
+    f = open('dataset_288_4.txt','r')
+    lines = f.readlines()
+    def buildgenome(line):
+        genome = []
+        line = line.strip().rstrip(')').lstrip('(')
+        items = line.split(')(')
+        for item in items:
+            lst = item.split()
+            lst = [int(x) for x in lst]
+            genome.append(lst)
+        return genome
+    p = buildgenome(lines[0])
+    q = buildgenome(lines[1])
+    print tobreakdistance(p,q)
 
     
     # f = open('dataset_286_3.txt','r')
