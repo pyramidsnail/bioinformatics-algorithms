@@ -180,8 +180,18 @@ def tobreakongenome(p,i0,j0,i1,j1):
 if __name__ == '__main__':
     # print graph2genome([(2, 4), (3, 6), (5, 1), (8, 9), (10, 12), (11, 7)])
     # print tobreakongenomegraph([(2,4),(3,8),(7,5),(6,1)], 1, 6, 3,8)
-    print tobreakongenome([[+1,-2,-4,+3]],1,6,3,8)
+    # print tobreakongenome([[+1,-2,-4,+3]],1,6,3,8)
 
+
+    f = open('test','r')
+    lines = f.readlines()
+    graph = lines[0].strip().lstrip('(').rstrip(')')
+    graph = graph.split()
+    graph = [int(x) for x in graph]
+    points = lines[1].strip().split()
+    points = [int(x) for x in points]
+    print tobreakongenome(graph, points[0],points[1], points[2],points[3])
+    
 
     # f = open('test','r')
     # lines = f.readlines()
