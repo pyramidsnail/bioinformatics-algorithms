@@ -181,15 +181,50 @@ def tobreakongenome(p,i0,j0,i1,j1):
 def kmer(k, p, q):
     pdic = {}
     qdic = {}
-    for i in xrange(len(p)-k-1):
+    for i in xrange(len(p)-k+1):
         pdic[i]=p[i:i+k]
-    for i in xrange(len(q)-k-1):
+    for i in xrange(len(q)-k+1):
         qdic[i]=q[i:i+k]
     qreverse = {}
+    for i in qdic:
+        dna = ''
+        for j in range(k-1, -1, -1):
+            if qdic[i][j] == 'A':
+                dna += 'T'
+            elif qdic[i][j] == 'T':
+                dna += 'A'
+            elif qdic[i][j] == 'C':
+                dna += 'G'
+            else:
+                dna += 'C'
+        qreverse[i] = dna
+    res = []
+    for i in pdic:
+        for j in qdic:
+            if pdic[i] == qdic[j]:
+                res.append((i,j))
+    for i in pdic:
+        for j in qreverse:
+            if pdic[i] == qreverse[j]:
+                res.append((i,j))
+    res.sort()
+    return res
+    
+    
     
     
 
 if __name__ == '__main__':
+    f = open('289_5','r')
+    lines = f. readlines()
+    k = int(lines[0])
+    p = lines[1].strip()
+    q = lines[2].strip()
+    res = kmer(k, p, q)
+    for i in res:
+        sys.stdout.write('(')
+        sys.stdout.write(str(i[0])+', ')
+        sys.stdout.write(str(i[1])+')\n')
     # print graph2genome([(2, 4), (3, 6), (5, 1), (8, 9), (10, 12), (11, 7)])
     # print tobreakongenomegraph([(2,4),(3,8),(7,5),(6,1)], 1, 6, 3,8)
     # print tobreakongenome([[+1,-2,-4,+3]],1,6,3,8)
