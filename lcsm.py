@@ -29,6 +29,6 @@ for i in xrange(len(lst)):
 
 seqs = ''
 for i in res:
-    if len(i)>seqs:
+    if len(i)>len(seqs):
         seqs = i
-print i
+print seqs
