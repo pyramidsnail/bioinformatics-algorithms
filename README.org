@@ -1,0 +1,58 @@
+* CODE CHALLENGE: Implement BWMATCHING.
+     Input: A string BWT(Text), followed by a collection of Patterns.
+     Output: A list of integers, where the i-th integer corresponds to the number of substring
+     matches of the i-th member of Patterns in Text.
+
+Extra Dataset
+
+Sample Input:
+TCCTCTATGAGATCCTATTCTATGAAACCTTCA$GACCAAAATTCTCCGGC
+CCT CAC GAG CAG ATC
+Sample Output:
+2 1 1 0 1
+
+* CODE CHALLENGE: Implement BETTERBWMATCHING.
+     Input: A string BWT(Text) followed by a collection of strings Patterns.
+     Output: A list of integers, where the i-th integer corresponds to the number of substring
+     matches of the i-th member of Patterns in Text.
+
+Extra Dataset
+
+Sample Input:
+GGCGCCGC$TAGTCACACACGCCGTA
+ACC CCG CAG
+Sample Output:
+1 2 1
+
+Time Limit: 5 mins
+* CODE CHALLENGE: Solve the Multiple Pattern Matching Problem.
+     Input: A string Text followed by a collection of strings Patterns.
+     Output: All starting positions in Text where a string from Patterns appears as a substring.
+
+Extra Dataset
+
+Sample Input:
+AATCGGGTTCAATCGGGGT
+ATCG
+GGGT
+Sample Output:
+1 4 11 15
+
+Time Limit: 5 mins
+* You should now be ready to design your own approach to solve the Multiple Approximate Pattern Matching Problem and use this solution to map real sequencing reads.
+
+CODE CHALLENGE: Solve the Multiple Approximate Pattern Matching Problem.
+     Input: A string Text, followed by a collection of strings Patterns, and an integer d.
+     Output: All positions where one of the strings in Patterns appears as a substring of Text with
+     at most d mismatches.
+
+Extra Dataset
+
+Sample Input:
+ACATGCTACTTT
+ATT GCC GCTA TATT
+1
+Sample Output:
+2 4 4 6 7 8 9
+
+Time Limit: 5 mins
