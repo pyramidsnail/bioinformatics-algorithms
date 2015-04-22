@@ -7,7 +7,7 @@ def suffixArray(text):
         arr.append(text[i:])
     arr_sort = sorted(arr)
     for i in arr_sort:
-        print str(arr.index(i))+',',
+        return str(arr.index(i))+',',
 
 def bwt(text):
     arr = []
@@ -17,7 +17,7 @@ def bwt(text):
     res = ''
     for i in xrange(len(arr_sort)):
         res += arr_sort[i][-1]
-    print res
+    return res
 
 def reconstruct(text):
     text = list(text)
@@ -29,7 +29,29 @@ def reconstruct(text):
     return arr[0][1:]+'$'
 
 
-def bwmatching(text, patterns):
+def bwmatching(text, pattern):
+    last = list(bwt(text))
+    first = sorted(list(last))
+    top = 0
+    bottom = len(text)-1
+    while top < bottom:
+        if pattern:
+            symbol = pattern[-1]
+            pattern = pattern[:len(pattern)-1]
+            if symbol in last:
+                topindex = last.index(symbol)
+                bottomindex = reversed(last).index(symbol)
+                top =
+                bottom =
+            else:
+                return 0
+        else:
+            return bottom-top+1
+            
+
+
+
+
 if __name__ == '__main__':
     text = open('test', 'r').readline().strip()
     # suffixArray(text)
