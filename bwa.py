@@ -92,9 +92,9 @@ def countTable(text):
                 dic[text[i]][j] += 1
     return dic
 
-def bwtmatching_fast(text, pattern):
-    first_occurrence = firstOccurrence(text)
-    count_table = countTable(text)
+def bwtmatching_fast(text, pattern, first_occurrence, countTable):
+#     first_occurrence = firstOccurrence(text)
+#     count_table = countTable(text)
     last = list(text)
     first = sorted(last)
     top = 0
@@ -108,7 +108,7 @@ def bwtmatching_fast(text, pattern):
             
         else:
             return bottom-top+1
-    return
+    return 0
 def bwtmatching_fast_location(text, pattern, first_occurrence, count_table):
     last = list(text)
     first = sorted(last)
@@ -127,15 +127,16 @@ def bwtmatching_fast_location(text, pattern, first_occurrence, count_table):
 
 def bwtlocation(text, pattern,first_occurrence, count_table, suffix):
     loc = []
+    if bwtmatching_fast_location(text, pattern, first_occurrence, count_table):
 
-    top, bottom = bwtmatching_fast_location(text, pattern, first_occurrence, count_table)
-    for i in xrange(top, bottom+1):
-        loc.append(suffix[i])
+        top, bottom = bwtmatching_fast_location(text, pattern, first_occurrence, count_table)
+        for i in xrange(top, bottom+1):
+            loc.append(suffix[i])
     return loc
 
 
 
-def bwtmatching_error(text, pattern, first_occurrence, count_table, suffix):
+# def bwtmatching_error(text, pattern, first_occurrence, count_table, suffix):
     
 
 
@@ -157,16 +158,19 @@ if __name__ == '__main__':
     #     res.extend(bwtlocation(text, i.strip(),first_occurrence, count_table, suffix))
     # for i in sorted(res):
     #     print i,
+    
 
 
 
-    ####### number of matches
-    # f = open('test', 'r')
-    # lines = f.readlines() 
-    # text = lines[0].strip()
-    # patterns = lines[1].strip().split()
-    # for i in patterns:
-    #     print bwtmatching_fast(text, i),
+    # ####### number of matches
+    f = open('test', 'r')
+    lines = f.readlines() 
+    text = lines[0].strip()
+    first_occurrence = firstOccurrence(text)
+    count_table = countTable(text)
+    patterns = lines[1].strip().split()
+    for i in patterns:
+        print bwtmatching_fast(text, i, first_occurrence, count_table),
 
     # suffixArray(text)
     # bwt(text)
