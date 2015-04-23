@@ -136,9 +136,9 @@ def bwtlocation(text, pattern,first_occurrence, count_table, suffix):
 
 
 
-# def bwtmatching_error(text, pattern, first_occurrence, count_table, suffix):
+def bwtmatching_error(text, pattern, first_occurrence, count_table, suffix):
     
-
+    
 
 if __name__ == '__main__':
     ##### location of the matches
