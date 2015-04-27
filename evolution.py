@@ -70,8 +70,26 @@ def additivePhylogeny(dic, n, res):
                 end = j
     x = dic[start][len(dic)-1]
     #### add leaf
-    
+    #### determing whether this node exist
+    # node_flag = 0
+    # for i in dic[start]:
+    #     if dic[start][i] == x:
+    #             new_key = i
+    #             node_flag = 1
+    #             break
+    # if not node_flag:
+    new_key = max(res.keys()+dic.keys())+1
+    if not new_key in res:
+        res[new_key] = {}
+    res[new_key][n-1] = limblength
+    res[new_key][end] = dic[start][end]-x
+    if not start in res:
+        res[start] = {}
+    res[start][new_key] = x
+
     dic.pop(len(dic)-1, None)
+    for i in dic.keys():
+        dic[i].pop(len(dic), None)
     return  additivePhylogeny(dic, n-1, res)
 
 def UPGMA(dic, n):
@@ -175,26 +193,26 @@ def neighborJoining(dic, n, graph):
 
 if __name__ == '__main__':
 
-    #####  neighbor joining
-    lines = open('test','r').readlines()
-    n = int(lines[0])
-    dic = {}
-    for i in xrange(n):
-        line = lines[i+1]
-        items = line.split()
-        dic[i] = {}
-        for j in xrange(n):
-            dic[i][j] = int(items[j])
-    res ={}
-    res = neighborJoining(dic, n, res)
-    output = {}
-    for i in res:
-        for j in res[i]:
-            if j!='age':
-                output[(i,j)] = res[i][j]
-                output[(j,i)] = res[i][j]
-    for i in sorted(output.keys()):
-        print "%s->%s:%.3f" %(i[0],i[1],output[(i[0],i[1])])
+    # #####  neighbor joining
+    # lines = open('test','r').readlines()
+    # n = int(lines[0])
+    # dic = {}
+    # for i in xrange(n):
+    #     line = lines[i+1]
+    #     items = line.split()
+    #     dic[i] = {}
+    #     for j in xrange(n):
+    #         dic[i][j] = int(items[j])
+    # res ={}
+    # res = neighborJoining(dic, n, res)
+    # output = {}
+    # for i in res:
+    #     for j in res[i]:
+    #         if j!='age':
+    #             output[(i,j)] = res[i][j]
+    #             output[(j,i)] = res[i][j]
+    # for i in sorted(output.keys()):
+    #     print "%s->%s:%.3f" %(i[0],i[1],output[(i[0],i[1])])
 
 
 
@@ -221,19 +239,19 @@ if __name__ == '__main__':
     # for i in sorted(output.keys()):
     #     print "%s->%s:%.3f" %(i[0],i[1],output[(i[0],i[1])])
 
-    # ##### additivePhylogeny
-    # lines = open('test','r').readlines()
-    # n = int(lines[0])
-    # dic = {}
-    # for i in xrange(n):
-    #     line = lines[i+1]
-    #     items = line.split()
-    #     dic[i] = {}
-    #     for j in xrange(n):
-    #         dic[i][j] = int(items[j])
+    ##### additivePhylogeny
+    lines = open('test','r').readlines()
+    n = int(lines[0])
+    dic = {}
+    for i in xrange(n):
+        line = lines[i+1]
+        items = line.split()
+        dic[i] = {}
+        for j in xrange(n):
+            dic[i][j] = int(items[j])
     
-    # res = {}
-    # res = additivePhylogeny(dic, n, res)
+    res = {}
+    res = additivePhylogeny(dic, n, res)
     
 
 
