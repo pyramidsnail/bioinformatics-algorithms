@@ -73,14 +73,53 @@ def additivePhylogeny(dic, n, res):
     
     dic.pop(len(dic)-1, None)
     return  additivePhylogeny(dic, n-1, res)
-        
-        
 
+def UPGMA(dic, n):
+    graph = {}
+    ncluster = n
+    cluster_size = {}
+    for i in xrange(n):
+        cluster_size[i] = 1
+    for i in xrange(n):
+        graph[i] = {}
+        graph[i]['age'] = 0
+    while ncluster>1:
+        min_value = 1000000
+        point1 = 0
+        point2 = 0
+        for i in dic.keys():
+            for j in dic.keys():
+                if i!=j and dic[i][j] < min_value:
+                    point1 = i
+                    point2 = j
+                    min_value = dic[i][j]
+        new_key = len(graph)
+        graph[new_key] = {}
+        cluster_size[new_key] = cluster_size[point1] + cluster_size[point2]
+        graph[new_key]['age'] = 1.0*(dic[point1][point2])
+        graph[new_key][point1] = graph[new_key]['age'] - graph[point1]['age']
+        graph[new_key][point2] = graph[new_key]['age'] - graph[point2]['age']
+        dic[new_key] = {}
+        for i in dic.keys():
+            if i!=new_key:
+                dic[new_key][i] = 1.0*(dic[point1][i]*cluster_size[point1]+dic[point2][i]*cluster_size[point2])/(cluster_size[point1]+cluster_size[point2])
+                dic[i][new_key] = 1.0*(dic[point1][i]*cluster_size[point1]+dic[point2][i]*cluster_size[point2])/(cluster_size[point1]+cluster_size[point2])
+        dic[new_key][new_key] = 0
+        dic.pop(point1, None)
+        dic.pop(point2, None)
+        for i in dic.keys():
+            dic[i].pop(point1, None)
+            dic[i].pop(point2, None)
+        ncluster -= 1          
+        
+    return graph
 
 
 if __name__ == '__main__':
 
-    ##### additivePhylogeny
+
+
+    #####  UPGMA
     lines = open('test','r').readlines()
     n = int(lines[0])
     dic = {}
@@ -90,9 +129,21 @@ if __name__ == '__main__':
         dic[i] = {}
         for j in xrange(n):
             dic[i][j] = int(items[j])
+    res =UPGMA(dic, n)
+
+    # ##### additivePhylogeny
+    # lines = open('test','r').readlines()
+    # n = int(lines[0])
+    # dic = {}
+    # for i in xrange(n):
+    #     line = lines[i+1]
+    #     items = line.split()
+    #     dic[i] = {}
+    #     for j in xrange(n):
+    #         dic[i][j] = int(items[j])
     
-    res = {}
-    res = additivePhylogeny(dic, n, res)
+    # res = {}
+    # res = additivePhylogeny(dic, n, res)
     
 
 
