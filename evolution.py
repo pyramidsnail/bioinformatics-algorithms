@@ -96,7 +96,7 @@ def UPGMA(dic, n):
         new_key = len(graph)
         graph[new_key] = {}
         cluster_size[new_key] = cluster_size[point1] + cluster_size[point2]
-        graph[new_key]['age'] = 1.0*(dic[point1][point2])
+        graph[new_key]['age'] = 1.0*(dic[point1][point2])/2
         graph[new_key][point1] = graph[new_key]['age'] - graph[point1]['age']
         graph[new_key][point2] = graph[new_key]['age'] - graph[point2]['age']
         dic[new_key] = {}
@@ -114,12 +114,68 @@ def UPGMA(dic, n):
         
     return graph
 
+def neighborJoining(dic, n, graph):
+    if n==2:
+        if not dic.keys()[0] in graph:
+            graph[dic.keys()[0]] = {}
+        graph[dic.keys()[0]][dic.keys()[1]]=dic[dic.keys()[0]][dic.keys()[1]]
+        return graph
+    totalMatrix = {}
+    for i in dic.keys():
+        total = 0
+        for j in dic[i].keys():
+            if i!=j:
+                total += dic[i][j]
+        totalMatrix[i] = total
+    neighborMatrix = {}
+    for i in dic:
+        if not i in neighborMatrix:
+            neighborMatrix[i] = {}
+        for j in dic[i]:
+            if i==j:
+                neighborMatrix[i][j] = 0
+            else:
+                neighborMatrix[i][j] = (n-2)*dic[i][j]-totalMatrix[i]-totalMatrix[j]
+
+    min_value = 1000000
+    point1 = 0
+    point2 = 0
+    for i in neighborMatrix:
+        for j in neighborMatrix[i]:
+            if neighborMatrix[i][j] < min_value:
+                min_value = neighborMatrix[i][j]
+                point1 = i
+                point2 = j
+    delta = 1.0*(totalMatrix[point1]-totalMatrix[point2])/(n-2)
+    limb1 = 0.5*(dic[point1][point2]+delta)
+    limb2 = 0.5*(dic[point1][point2]-delta)
+    new_key = max(dic.keys())+1
+    dic[new_key] = {}
+    for i in dic:
+        if i!=new_key:
+            dic[new_key][i]=0.5*(dic[point1][i]+dic[point2][i]-dic[point1][point2])
+            dic[i][new_key]=0.5*(dic[point1][i]+dic[point2][i]-dic[point1][point2])
+    
+    dic[new_key][new_key] = 0
+    dic.pop(point1, None)
+    dic.pop(point2, None)
+    for i in dic.keys():
+        dic[i].pop(point1, None)
+        dic[i].pop(point2, None)
+
+    if not new_key in graph:
+        graph[new_key] = {}
+    graph[new_key][point1] = limb1
+    graph[new_key][point2] = limb2
+    return neighborJoining(dic, n-1, graph)
+    
+
+
+
 
 if __name__ == '__main__':
 
-
-
-    #####  UPGMA
+    #####  neighbor joining
     lines = open('test','r').readlines()
     n = int(lines[0])
     dic = {}
@@ -129,7 +185,41 @@ if __name__ == '__main__':
         dic[i] = {}
         for j in xrange(n):
             dic[i][j] = int(items[j])
-    res =UPGMA(dic, n)
+    res ={}
+    res = neighborJoining(dic, n, res)
+    output = {}
+    for i in res:
+        for j in res[i]:
+            if j!='age':
+                output[(i,j)] = res[i][j]
+                output[(j,i)] = res[i][j]
+    for i in sorted(output.keys()):
+        print "%s->%s:%.3f" %(i[0],i[1],output[(i[0],i[1])])
+
+
+
+
+
+
+    # #####  UPGMA
+    # lines = open('test','r').readlines()
+    # n = int(lines[0])
+    # dic = {}
+    # for i in xrange(n):
+    #     line = lines[i+1]
+    #     items = line.split()
+    #     dic[i] = {}
+    #     for j in xrange(n):
+    #         dic[i][j] = int(items[j])
+    # res =UPGMA(dic, n)
+    # output = {}
+    # for i in res:
+    #     for j in res[i]:
+    #         if j!='age':
+    #             output[(i,j)] = res[i][j]
+    #             output[(j,i)] = res[i][j]
+    # for i in sorted(output.keys()):
+    #     print "%s->%s:%.3f" %(i[0],i[1],output[(i[0],i[1])])
 
     # ##### additivePhylogeny
     # lines = open('test','r').readlines()
