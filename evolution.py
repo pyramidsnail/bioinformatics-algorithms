@@ -190,12 +190,59 @@ def neighborJoining(dic, n, graph):
     return neighborJoining(dic, n-1, graph)
 
 
+def root_small_parsimony(graph, index):
+    alphabet = ['A','T','C','G']
+    tag = {}
+    s = {}
+    
+    for i in graph:
+        s[i] = {}
+        if 'label' in graph[i] and len(graph[i]['label'])>=index:
+            tag[i] = 1
+            for symbol in alphabet:
+                if i[index] == symbol:
+                    s[i][symbol] = 0
+                else:
+                    s[i][symbol] = float('inf')
+        else:
+            tag[i] = 0
 
+        for 
+                    
 
 
 
 
 if __name__ == '__main__':
+    ##### rooted small parsimony
+    f = open('test', 'r')
+    graph = {}
+    length = 0
+    lines = f.readlines()
+    n = int(lines[0])
+    for line in lines[1:]:
+        start = line.strip().split('->')[0]
+        end = line.strip().split('->')[1]
+        if len(end)>1:
+            if graph.keys():
+                new_key = max(graph.keys())+1
+            else:
+                new_key = 0
+            length = len(end)
+            graph[new_key] = {}
+            graph[new_key]['label'] = end
+        else:
+            new_key = end
+        if not start in graph:
+            graph[start] = {}
+        graph[start][new_key] = 0 
+            
+            
+        
+        
+
+
+    
 
     # #####  neighbor joining
     # lines = open('test','r').readlines()
@@ -243,19 +290,19 @@ if __name__ == '__main__':
     # for i in sorted(output.keys()):
     #     print "%s->%s:%.3f" %(i[0],i[1],output[(i[0],i[1])])
 
-    ##### additivePhylogeny
-    lines = open('test','r').readlines()
-    n = int(lines[0])
-    dic = {}
-    for i in xrange(n):
-        line = lines[i+1]
-        items = line.split()
-        dic[i] = {}
-        for j in xrange(n):
-            dic[i][j] = int(items[j])
+    # ##### additivePhylogeny
+    # lines = open('test','r').readlines()
+    # n = int(lines[0])
+    # dic = {}
+    # for i in xrange(n):
+    #     line = lines[i+1]
+    #     items = line.split()
+    #     dic[i] = {}
+    #     for j in xrange(n):
+    #         dic[i][j] = int(items[j])
     
-    res = {}
-    res = additivePhylogeny(dic, n, res)
+    # res = {}
+    # res = additivePhylogeny(dic, n, res)
     
 
 
