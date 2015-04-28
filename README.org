@@ -153,3 +153,150 @@ Sample Output:
 5->2:16.500
 5->4:2.000
 
+
+* 
+CODE CHALLENGE: Implement SmallParsimony to solve the Small Parsimony Problem.
+     Input: An integer n followed by an adjacency list for a rooted binary tree with n leaves
+     labeled by DNA strings.
+     Output: The minimum parsimony score of this tree, followed by the adjacency list of the
+     tree corresponding to labeling internal nodes by DNA strings in order to minimize the
+     parsimony score of the tree.
+
+Note: Remember to run SmallParsimony on each individual index of the strings at the leaves of the tree.
+
+Extra Dataset
+
+Sample Input:
+4
+4->CAAATCCC
+4->ATTGCGAC
+5->CTGCGCTG
+5->ATGGACGA
+6->4
+6->5
+Sample Output:
+16
+ATTGCGAC->ATAGCCAC:2
+ATAGACAA->ATAGCCAC:2
+ATAGACAA->ATGGACTA:2
+ATGGACGA->ATGGACTA:1
+CTGCGCTG->ATGGACTA:4
+ATGGACTA->CTGCGCTG:4
+ATGGACTA->ATGGACGA:1
+ATGGACTA->ATAGACAA:2
+ATAGCCAC->CAAATCCC:5
+ATAGCCAC->ATTGCGAC:2
+ATAGCCAC->ATAGACAA:2
+CAAATCCC->ATAGCCAC:5
+
+* CODE CHALLENGE: Solve the Small Parsimony in an Unrooted Tree Problem.
+     Input: An integer n followed by an adjacency list for an unrooted binary tree with n leaves
+     labeled by DNA strings.
+     Output: The minimum parsimony score of this tree, followed by the adjacency list of the
+     tree corresponding to labeling internal nodes by DNA strings in order to minimize the
+     parsimony score of the tree.
+
+Extra Dataset
+
+Sample Input:
+4
+TCGGCCAA->4
+4->TCGGCCAA
+CCTGGCTG->4
+4->CCTGGCTG
+CACAGGAT->5
+5->CACAGGAT
+TGAGTACC->5
+5->TGAGTACC
+4->5
+5->4
+Sample Output:
+17
+TCGGCCAA->CCAGGCAC:4
+CCTGGCTG->CCAGGCAC:3
+TGAGTACC->CAAGGAAC:4
+CCAGGCAC->CCTGGCTG:3
+CCAGGCAC->CAAGGAAC:2
+CCAGGCAC->TCGGCCAA:4
+CACAGGAT->CAAGGAAC:4
+CAAGGAAC->CACAGGAT:4
+CAAGGAAC->TGAGTACC:4
+CAAGGAAC->CCAGGCAC:2
+
+Time Limit: 5 mins
+
+* Sample Input:
+5 4
+0->4
+4->0
+1->4
+4->1
+2->5
+5->2
+3->5
+5->3
+4->5
+5->4
+Sample Output:
+1->4
+0->5
+3->4
+2->5
+5->2
+5->4
+5->0
+4->1
+4->5
+4->3
+
+1->5
+0->4
+3->4
+2->5
+5->2
+5->4
+5->1
+4->0
+4->5
+4->3
+
+* 
+Sample Input:
+4
+CGAAGATTCTAA->4
+ATGCCGGGCTCG->4
+CTTTTAGAAGCG->5
+AACTCATGATAT->5
+5->AACTCATGATAT
+5->CTTTTAGAAGCG
+5->4
+4->ATGCCGGGCTCG
+4->CGAAGATTCTAA
+4->5
+Sample Output:
+22
+AACTCATGATAT->CTATCAGGATCG:6
+CTTTTAGAAGCG->CTATCAGGATCG:4
+CGAAGATTCTAA->CTAACAGGCTCG:6
+CTATCAGGATCG->CTTTTAGAAGCG:4
+CTATCAGGATCG->CTAACAGGCTCG:2
+CTATCAGGATCG->AACTCATGATAT:6
+CTAACAGGCTCG->ATGCCGGGCTCG:4
+CTAACAGGCTCG->CGAAGATTCTAA:6
+CTAACAGGCTCG->CTATCAGGATCG:2
+ATGCCGGGCTCG->CTAACAGGCTCG:4
+
+21
+AACTCATGATAT->CTATCATGCTAA:5
+CTTTTAGAAGCG->CTTTCAGGCTCG:4
+CGAAGATTCTAA->CTATCATGCTAA:4
+CTATCATGCTAA->CTTTCAGGCTCG:4
+CTATCATGCTAA->CGAAGATTCTAA:4
+CTATCATGCTAA->AACTCATGATAT:5
+CTTTCAGGCTCG->ATGCCGGGCTCG:4
+CTTTCAGGCTCG->CTTTTAGAAGCG:4
+CTTTCAGGCTCG->CTATCATGCTAA:4
+ATGCCGGGCTCG->CTTTCAGGCTCG:4
+
+Time Limit: 5 mins
+

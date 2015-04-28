@@ -92,6 +92,8 @@ def additivePhylogeny(dic, n, res):
         dic[i].pop(len(dic), None)
     return  additivePhylogeny(dic, n-1, res)
 
+def additivePhylogeny1(dic, n)
+
 def UPGMA(dic, n):
     graph = {}
     ncluster = n
@@ -186,7 +188,9 @@ def neighborJoining(dic, n, graph):
     graph[new_key][point1] = limb1
     graph[new_key][point2] = limb2
     return neighborJoining(dic, n-1, graph)
-    
+
+
+
 
 
 
