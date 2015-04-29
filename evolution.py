@@ -92,7 +92,7 @@ def additivePhylogeny(dic, n, res):
         dic[i].pop(len(dic), None)
     return  additivePhylogeny(dic, n-1, res)
 
-def additivePhylogeny1(dic, n)
+# def additivePhylogeny1(dic, n)
 
 def UPGMA(dic, n):
     graph = {}
@@ -197,7 +197,7 @@ def root_small_parsimony(graph, index):
     # track_table = {}
     for i in graph:
         s[i] = {}
-        track_table[i] = {}
+        # track_table[i] = {}
         if 'label' in graph[i] and len(graph[i]['label'])>=index:
             tag[i] = 1
             for symbol in alphabet:
@@ -220,10 +220,18 @@ def root_small_parsimony(graph, index):
                 s[i][symbol] = 0
                 for k in graph[i]:
                     if k!='label':
-                        
-                        s[i][symbol] += min(s[k].values())+
+                        min_value = 1000000
+                        for sub_symbol in alphabet:
+                            if symbol == sub_symbol:
+                                s[i][symbol] += min(min_value, s[k][sub_symbol])
+                            else:
+                                s[i][symbol] += min(min_value, s[k][sub_symbol]+1)
     
-
+    
+    top_node = max(graph.keys())
+    res = {}
+    res[top_node] = min(s[i], key=s[i].get)
+    return res
 
 
 if __name__ == '__main__':
@@ -233,23 +241,20 @@ if __name__ == '__main__':
     length = 0
     lines = f.readlines()
     n = int(lines[0])
-    for line in lines[1:]:
-        start = line.strip().split('->')[0]
-        end = line.strip().split('->')[1]
+    for i in xrange(len(lines)-1):
+        start = int(lines[i+1].strip().split('->')[0])
+        end = lines[i+1].strip().split('->')[1]
         if len(end)>1:
-            if graph.keys():
-                new_key = max(graph.keys())+1
-            else:
-                new_key = 0
-            length = len(end)
+            new_key = i
             graph[new_key] = {}
             graph[new_key]['label'] = end
         else:
-            new_key = end
+            new_key = int(end)
         if not start in graph:
             graph[start] = {}
         graph[start][new_key] = 0 
-            
+
+    res = root_small_parsimony(graph, 0)
             
         
         
