@@ -194,22 +194,35 @@ def root_small_parsimony(graph, index):
     alphabet = ['A','T','C','G']
     tag = {}
     s = {}
-    
+    # track_table = {}
     for i in graph:
         s[i] = {}
+        track_table[i] = {}
         if 'label' in graph[i] and len(graph[i]['label'])>=index:
             tag[i] = 1
             for symbol in alphabet:
-                if i[index] == symbol:
+                if graph[i]['label'][index] == symbol:
                     s[i][symbol] = 0
                 else:
                     s[i][symbol] = float('inf')
         else:
             tag[i] = 0
 
-        for 
-                    
-
+    while 0 in tag.values():
+        for i in graph and tag[i]==0:
+            flag = 1
+            for k in graph[i]:
+                if not (k!='label' and len(graph[k]['label'])==index+1):
+                    flag = 0
+            if flag:
+                tag[i] = 1
+            for symbol in alphabet:
+                s[i][symbol] = 0
+                for k in graph[i]:
+                    if k!='label':
+                        
+                        s[i][symbol] += min(s[k].values())+
+    
 
 
 
