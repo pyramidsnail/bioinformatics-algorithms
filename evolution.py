@@ -191,15 +191,19 @@ def neighborJoining(dic, n, graph):
 
 
 def root_small_parsimony(graph, index):
+    res = {}
     alphabet = ['A','T','C','G']
     tag = {}
     s = {}
-    # track_table = {}
+    track_table = {}
     for i in graph:
         s[i] = {}
-        # track_table[i] = {}
+        track_table[i] = {}
         if 'label' in graph[i] and len(graph[i]['label'])>=index:
             tag[i] = 1
+            res[i] = graph[i]['label'][index]
+            track_table[i] = {}
+            track_table[i][graph[i]['label'][index]] = '$' 
             for symbol in alphabet:
                 if graph[i]['label'][index] == symbol:
                     s[i][symbol] = 0
@@ -209,30 +213,66 @@ def root_small_parsimony(graph, index):
             tag[i] = 0
 
     while 0 in tag.values():
-        for i in graph and tag[i]==0:
-            flag = 1
-            for k in graph[i]:
-                if not (k!='label' and len(graph[k]['label'])==index+1):
-                    flag = 0
-            if flag:
-                tag[i] = 1
-            for symbol in alphabet:
-                s[i][symbol] = 0
+        for i in graph: 
+            if tag[i]==0:
+                flag = 1
                 for k in graph[i]:
-                    if k!='label':
-                        min_value = 1000000
-                        for sub_symbol in alphabet:
-                            if symbol == sub_symbol:
-                                s[i][symbol] += min(min_value, s[k][sub_symbol])
-                            else:
-                                s[i][symbol] += min(min_value, s[k][sub_symbol]+1)
+                    if len(s[k])!=4:
+                        flag = 0
+                if flag:
+                    tag[i] = 1
+                    track_table[i] = {}
+                    for symbol in alphabet:
+                        s[i][symbol] = 0
+                        for k in graph[i]:
+                            if k!='label':
+                                min_value = 1000000
+                                for sub_symbol in alphabet:
+                                    if symbol == sub_symbol:
+                                        if s[k][sub_symbol] < min_value:
+                                            min_value = s[k][sub_symbol]
+                                            track_table[i][symbol] = sub_symbol
+                                    
+                                    else:
+                                        if (s[k][sub_symbol]+1) < min_value:
+                                            min_value = s[k][sub_symbol]+1
+                                            track_table[i][symbol] = sub_symbol
+                                        
+                            s[i][symbol] += min_value
     
     
     top_node = max(graph.keys())
-    res = {}
     res[top_node] = min(s[i], key=s[i].get)
+    # search_node = top_node
+    # while len(track_table[search_node])==4:
+    #     for k in graph[search_node]:
+    #         res[k] = track_table[search_node][res[search_node]]
+    queue = []
+    queue.append(top_node)
+    while queue:
+        item = queue.pop()
+        son = graph[item].keys()[0]
+        daughter = graph[item].keys()[1]
+        if not (len(track_table[son])==1 and len(track_table[daughter])==1):
+            res[son] = track_table[item][res[item]]
+            res[daughter] = track_table[item][res[item]]
+            queue.append(son)
+            queue.append(daughter)
+        else:
+            break
+    
+    
+        
     return res
 
+
+
+def hamming(str1, str2):
+    score = 0
+    for i in xrange(len(str1)):
+        if str1[i]!=str2[i]:
+            score += 1
+    return score
 
 if __name__ == '__main__':
     ##### rooted small parsimony
@@ -245,6 +285,7 @@ if __name__ == '__main__':
         start = int(lines[i+1].strip().split('->')[0])
         end = lines[i+1].strip().split('->')[1]
         if len(end)>1:
+            length = len(end)
             new_key = i
             graph[new_key] = {}
             graph[new_key]['label'] = end
@@ -254,8 +295,26 @@ if __name__ == '__main__':
             graph[start] = {}
         graph[start][new_key] = 0 
 
-    res = root_small_parsimony(graph, 0)
+    # res = root_small_parsimony(graph, 0)
+    res = {}
+    for i in xrange(len(graph)):
+        res[i] = ''
+    for i in xrange(length):
+        tmp = root_small_parsimony(graph, i)
+        for j in xrange(len(graph)):
+            res[j] += tmp[j]
+
+    score = 0
+    for key in graph:
+        if 'label' not in graph[key]:
+            for sub_key in graph[key]:
+                score += hamming(res[key], res[sub_key])
+                print "%s->%s:%d" %(res[key], res[sub_key], hamming(res[key], res[sub_key]))
+                print "%s->%s:%d" %(res[sub_key], res[key], hamming(res[key], res[sub_key]))
+    print score        
             
+
+    
         
         
 
