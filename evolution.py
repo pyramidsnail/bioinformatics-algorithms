@@ -263,7 +263,7 @@ def root_small_parsimony(graph, index):
     
     
         
-    return res
+    return [res, min(s[top_node].values())]
 
 
 
@@ -295,20 +295,23 @@ if __name__ == '__main__':
             graph[start] = {}
         graph[start][new_key] = 0 
 
-    # res = root_small_parsimony(graph, 0)
+    # res = root_small_parsimony(graph, 2)
+    
+
     res = {}
+    score = 0
+
     for i in xrange(len(graph)):
         res[i] = ''
     for i in xrange(length):
-        tmp = root_small_parsimony(graph, i)
+        tmp, tmp_score = root_small_parsimony(graph, i)
+        score += tmp_score
         for j in xrange(len(graph)):
             res[j] += tmp[j]
 
-    score = 0
     for key in graph:
         if 'label' not in graph[key]:
             for sub_key in graph[key]:
-                score += hamming(res[key], res[sub_key])
                 print "%s->%s:%d" %(res[key], res[sub_key], hamming(res[key], res[sub_key]))
                 print "%s->%s:%d" %(res[sub_key], res[key], hamming(res[key], res[sub_key]))
     print score        
