@@ -274,73 +274,232 @@ def hamming(str1, str2):
             score += 1
     return score
 
+
+def nearest_neighbor(graph, node1, node2):
+    neighbors = [copy.deepcopy(graph), copy.deepcopy(graph)]
+#     neighbor2 = copy.deepcopy(graph)
+    for i in graph[node1]:
+        if i!=node2:
+            node1_exchange = i
+            break
+    node2_exchange = []
+    for i in graph[node2]:
+        if i!=node1:
+            node2_exchange.append(i)
+    for i in xrange(2):
+        neighbors[i][node1][graph[node1].index(node1_exchange)] = node2_exchange[i]
+        neighbors[i][node2][graph[node2].index(node2_exchange[i])] = node1_exchange
+        neighbors[i][node1_exchange][graph[node1_exchange].index(node1)] = node2
+        neighbors[i][node2_exchange[i]][graph[node2_exchange[i]].index(node2)] = node1
+    return neighbors
+
+
+        
+    
+
+    
+
 if __name__ == '__main__':
 
-    ##### unrooted small parsimony
+
+    ##### large parsimony
     f = open('test', 'r')
     graph = {}
     length = 0
     lines = f.readlines()
+    new_key = -1
     n = int(lines[0])
     for i in xrange(len(lines)-1):
-        if (i+1)%2==0:
-            start = int(lines[i+1].strip().split('->')[0])
-            end = lines[i+1].strip().split('->')[1]
+        start = lines[i+1].strip().split('->')[0]
+        end = lines[i+1].strip().split('->')[1]
+        if str.isdigit(start):
             if not str.isdigit(end):
                 length = len(end)
-                new_key = (i+1)/2-1
+                new_key = new_key+1
                 graph[new_key] = {}
                 graph[new_key]['label'] = end
             else:
                 new_key = int(end)
-            if not start in graph:
-                graph[start] = {}
-            graph[start][new_key] = 0 
- 
-
-    min_res = {}
-    min_score = 1000000
-    final_graph = {}
-    final_node = 0
-    final_sub_node = 0
-    final_add_key = 0
+            if not int(start) in graph:
+                graph[int(start)] = {}
+            if not new_key in graph:
+                graph[int(start)][new_key] = 0
+            else:
+                if (not int(start) in graph[new_key]):
+                    graph[int(start)][new_key] = 0
+    ### determine node1 and node2
     for node in graph:
         if  'label' not in graph[node] and len(graph[node])==3:
             for sub_node in graph[node]:
                 if 'label' not in graph[sub_node]:
-                    tmp_graph = copy.deepcopy(graph)
-                    add_key = max(tmp_graph.keys())+1
-                    tmp_graph[add_key] = {}
-                    tmp_graph[add_key][node] = 0
-                    tmp_graph[add_key][sub_node] = 0
-                    tmp_graph[node].pop(sub_node, None)
-                    score = 0
-                    res = {}
-                    for i in tmp_graph.keys():
-                        res[i] = ''
-                    for i in xrange(length):
-                        tmp, tmp_score = root_small_parsimony(tmp_graph, i)
-                        score += tmp_score
-                        for j in tmp_graph.keys():
-                            res[j] += tmp[j]
-                    if score<min_score:
-                        min_score = score
-                        min_res = copy.deepcopy(res)
-                        final_graph = copy.deepcopy(tmp_graph)
-                        final_node = node
-                        final_sub_node = sub_node
-                        final_add_key = add_key
-                    # graph.pop(max(graph.keys())+1, None)
+                    node1 = sub_node
+                    node2 = node
+    ### interchange neighbors
+    large_parsimony_graph = {}
+    for i in graph:
+        large_parsimony_graph[i] = []
+    for i in graph:
+        for j in graph[i]:
+            if len(graph[i])>1:
+                large_parsimony_graph[i].append(j)
+                large_parsimony_graph[j].append(i)
+    neighbors = nearest_neighbor(large_parsimony_graph, node1, node2)
+    ### transform neighbors into unrooted small parsimony input
+    for neighbor in neighbors:
+        small_parsimony_graph = {}
+        for i in graph:
+            if 'label' in graph[i]:
+                small_parsimony_graph[i] = {}
+                small_parsimony_graph[i]['label'] = graph[i]['label']
+            else:
+                small_parsimony_graph[i] = {}
+                for j in neighbor[i]:
+                    if j not in neighbor:
+                        neighbor[i][j] = 0
+                    else:
+                        if i not in neighbor[j]:
+                            neighbor[i][j] = 0
+                            
+        min_res = {}
+        min_score = 1000000
+        final_small_parsimony_graph = {}
+        final_node = 0
+        final_sub_node = 0
+        final_add_key = 0
+        for node in small_parsimony_graph:
+            if  'label' not in small_parsimony_graph[node] and len(small_parsimony_graph[node])==3:
+                for sub_node in small_parsimony_graph[node]:
+                    if 'label' not in small_parsimony_graph[sub_node]:
+                        tmp_small_parsimony_graph = copy.deepcopy(small_parsimony_graph)
+                        add_key = max(tmp_small_parsimony_graph.keys())+1
+                        tmp_small_parsimony_graph[add_key] = {}
+                        tmp_small_parsimony_graph[add_key][node] = 0
+                        tmp_small_parsimony_graph[add_key][sub_node] = 0
+                        tmp_small_parsimony_graph[node].pop(sub_node, None)
+                        score = 0
+                        res = {}
+                        for i in tmp_small_parsimony_graph.keys():
+                            res[i] = ''
+                        for i in xrange(length):
+                            tmp, tmp_score = root_small_parsimony(tmp_small_parsimony_graph, i)
+                            score += tmp_score
+                            for j in tmp_small_parsimony_graph.keys():
+                                res[j] += tmp[j]
+                        if score<min_score:
+                            min_score = score
+                            min_res = copy.deepcopy(res)
+                            final_small_parsimony_graph = copy.deepcopy(tmp_small_parsimony_graph)
+                            final_node = node
+                            final_sub_node = sub_node
+                            final_add_key = add_key
+                        # small_parsimony_graph.pop(max(small_parsimony_graph.keys())+1, None)
+
+        print min_score
+        final_small_parsimony_graph.pop(final_add_key, None)
+        for key in final_small_parsimony_graph:
+            if 'label' not in final_small_parsimony_graph[key]:
+                for sub_key in final_small_parsimony_graph[key]:
+                    print "%s->%s:%d" %(min_res[key],min_res[sub_key],hamming(min_res[key], min_res[sub_key]))
+                    print "%s->%s:%d" %(min_res[sub_key], min_res[key], hamming(min_res[key], min_res[sub_key]))
+        print "%s->%s:%d" %(min_res[final_node],min_res[final_sub_node],hamming(min_res[final_node], min_res[final_sub_node]))
+        print "%s->%s:%d" %(min_res[final_sub_node],min_res[final_node],hamming(min_res[final_node], min_res[final_sub_node]))
+        print 
+
+        
+                
+
+
+
+
+
+
+                    
+   # ##### nearest neighbors
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # graph = {}
+    # node1 = int(lines[0].split()[0])
+    # node2 = int(lines[0].strip().split()[1])
+    # for line in lines[1:]:
+    #     start = int(line.split('->')[0])
+    #     end = int(line.strip().split('->')[1])
+    #     if not start in graph:
+    #         graph[start] = []
+    #     graph[start].append(end)
+
+    # neighbors = nearest_neighbor(graph, node1, node2)
+    # for i in neighbors:
+    #     for j in i:
+    #         for k in i[j]:
+    #             print "%s->%s" %(j,k)
+    #     print 
     
-    print min_score
-    final_graph.pop(final_add_key, None)
-    for key in final_graph:
-        if 'label' not in final_graph[key]:
-            for sub_key in final_graph[key]:
-                print "%s->%s:%d" %(min_res[key],min_res[sub_key],hamming(min_res[key], min_res[sub_key]))
-                print "%s->%s:%d" %(min_res[sub_key], min_res[key], hamming(min_res[key], min_res[sub_key]))
-    print "%s->%s:%d" %(min_res[final_node],min_res[final_sub_node],hamming(min_res[final_node], min_res[final_sub_node]))
-    print "%s->%s:%d" %(min_res[final_sub_node],min_res[final_node],hamming(min_res[final_node], min_res[final_sub_node]))
+
+    # ##### unrooted small parsimony
+    # f = open('test', 'r')
+    # graph = {}
+    # length = 0
+    # lines = f.readlines()
+    # n = int(lines[0])
+    # for i in xrange(len(lines)-1):
+    #     if (i+1)%2==0:
+    #         start = int(lines[i+1].strip().split('->')[0])
+    #         end = lines[i+1].strip().split('->')[1]
+    #         if not str.isdigit(end):
+    #             length = len(end)
+    #             new_key = (i+1)/2-1
+    #             graph[new_key] = {}
+    #             graph[new_key]['label'] = end
+    #         else:
+    #             new_key = int(end)
+    #         if not start in graph:
+    #             graph[start] = {}
+    #         graph[start][new_key] = 0 
+ 
+
+    # min_res = {}
+    # min_score = 1000000
+    # final_graph = {}
+    # final_node = 0
+    # final_sub_node = 0
+    # final_add_key = 0
+    # for node in graph:
+    #     if  'label' not in graph[node] and len(graph[node])==3:
+    #         for sub_node in graph[node]:
+    #             if 'label' not in graph[sub_node]:
+    #                 tmp_graph = copy.deepcopy(graph)
+    #                 add_key = max(tmp_graph.keys())+1
+    #                 tmp_graph[add_key] = {}
+    #                 tmp_graph[add_key][node] = 0
+    #                 tmp_graph[add_key][sub_node] = 0
+    #                 tmp_graph[node].pop(sub_node, None)
+    #                 score = 0
+    #                 res = {}
+    #                 for i in tmp_graph.keys():
+    #                     res[i] = ''
+    #                 for i in xrange(length):
+    #                     tmp, tmp_score = root_small_parsimony(tmp_graph, i)
+    #                     score += tmp_score
+    #                     for j in tmp_graph.keys():
+    #                         res[j] += tmp[j]
+    #                 if score<min_score:
+    #                     min_score = score
+    #                     min_res = copy.deepcopy(res)
+    #                     final_graph = copy.deepcopy(tmp_graph)
+    #                     final_node = node
+    #                     final_sub_node = sub_node
+    #                     final_add_key = add_key
+    #                 # graph.pop(max(graph.keys())+1, None)
+    
+    # print min_score
+    # final_graph.pop(final_add_key, None)
+    # for key in final_graph:
+    #     if 'label' not in final_graph[key]:
+    #         for sub_key in final_graph[key]:
+    #             print "%s->%s:%d" %(min_res[key],min_res[sub_key],hamming(min_res[key], min_res[sub_key]))
+    #             print "%s->%s:%d" %(min_res[sub_key], min_res[key], hamming(min_res[key], min_res[sub_key]))
+    # print "%s->%s:%d" %(min_res[final_node],min_res[final_sub_node],hamming(min_res[final_node], min_res[final_sub_node]))
+    # print "%s->%s:%d" %(min_res[final_sub_node],min_res[final_node],hamming(min_res[final_node], min_res[final_sub_node]))
     
     
     # ##### rooted small parsimony
