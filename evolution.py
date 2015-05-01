@@ -224,19 +224,20 @@ def root_small_parsimony(graph, index):
                     track_table[i] = {}
                     for symbol in alphabet:
                         s[i][symbol] = 0
-                        for k in graph[i]:
+                        track_table[i][symbol] = {}
+                        for k in xrange(len(graph[i])):
                             if k!='label':
                                 min_value = 1000000
                                 for sub_symbol in alphabet:
                                     if symbol == sub_symbol:
-                                        if s[k][sub_symbol] < min_value:
-                                            min_value = s[k][sub_symbol]
-                                            track_table[i][symbol] = sub_symbol
+                                        if s[graph[i].keys()[k]][sub_symbol] < min_value:
+                                            min_value = s[graph[i].keys()[k]][sub_symbol]
+                                            track_table[i][symbol][k] = sub_symbol
                                     
                                     else:
-                                        if (s[k][sub_symbol]+1) < min_value:
-                                            min_value = s[k][sub_symbol]+1
-                                            track_table[i][symbol] = sub_symbol
+                                        if (s[graph[i].keys()[k]][sub_symbol]+1) < min_value:
+                                            min_value = s[graph[i].keys()[k]][sub_symbol]+1
+                                            track_table[i][symbol][k] = sub_symbol
                                         
                             s[i][symbol] += min_value
     
@@ -253,14 +254,13 @@ def root_small_parsimony(graph, index):
         item = queue.pop()
         son = graph[item].keys()[0]
         daughter = graph[item].keys()[1]
-        if not (len(track_table[son])==1 and len(track_table[daughter])==1):
-            res[son] = track_table[item][res[item]]
-            res[daughter] = track_table[item][res[item]]
+        res[son] = track_table[item][res[item]][0]
+        res[daughter] = track_table[item][res[item]][1]
+        if len(graph[son])>1:
             queue.append(son)
+        if len(graph[daughter])>1:
             queue.append(daughter)
-        else:
-            break
-    
+   
     
         
     return [res, min(s[top_node].values())]
@@ -275,46 +275,114 @@ def hamming(str1, str2):
     return score
 
 if __name__ == '__main__':
-    ##### rooted small parsimony
+
+    ##### unrooted small parsimony
     f = open('test', 'r')
     graph = {}
     length = 0
     lines = f.readlines()
     n = int(lines[0])
     for i in xrange(len(lines)-1):
-        start = int(lines[i+1].strip().split('->')[0])
-        end = lines[i+1].strip().split('->')[1]
-        if len(end)>1:
-            length = len(end)
-            new_key = i
-            graph[new_key] = {}
-            graph[new_key]['label'] = end
-        else:
-            new_key = int(end)
-        if not start in graph:
-            graph[start] = {}
-        graph[start][new_key] = 0 
+        if (i+1)%2==0:
+            start = int(lines[i+1].strip().split('->')[0])
+            end = lines[i+1].strip().split('->')[1]
+            if not str.isdigit(end):
+                length = len(end)
+                new_key = (i+1)/2-1
+                graph[new_key] = {}
+                graph[new_key]['label'] = end
+            else:
+                new_key = int(end)
+            if not start in graph:
+                graph[start] = {}
+            graph[start][new_key] = 0 
+ 
 
-    # res = root_small_parsimony(graph, 2)
+    min_res = {}
+    min_score = 1000000
+    final_graph = {}
+    final_node = 0
+    final_sub_node = 0
+    final_add_key = 0
+    for node in graph:
+        if  'label' not in graph[node] and len(graph[node])==3:
+            for sub_node in graph[node]:
+                if 'label' not in graph[sub_node]:
+                    tmp_graph = copy.deepcopy(graph)
+                    add_key = max(tmp_graph.keys())+1
+                    tmp_graph[add_key] = {}
+                    tmp_graph[add_key][node] = 0
+                    tmp_graph[add_key][sub_node] = 0
+                    tmp_graph[node].pop(sub_node, None)
+                    score = 0
+                    res = {}
+                    for i in tmp_graph.keys():
+                        res[i] = ''
+                    for i in xrange(length):
+                        tmp, tmp_score = root_small_parsimony(tmp_graph, i)
+                        score += tmp_score
+                        for j in tmp_graph.keys():
+                            res[j] += tmp[j]
+                    if score<min_score:
+                        min_score = score
+                        min_res = copy.deepcopy(res)
+                        final_graph = copy.deepcopy(tmp_graph)
+                        final_node = node
+                        final_sub_node = sub_node
+                        final_add_key = add_key
+                    # graph.pop(max(graph.keys())+1, None)
+    
+    print min_score
+    final_graph.pop(final_add_key, None)
+    for key in final_graph:
+        if 'label' not in final_graph[key]:
+            for sub_key in final_graph[key]:
+                print "%s->%s:%d" %(min_res[key],min_res[sub_key],hamming(min_res[key], min_res[sub_key]))
+                print "%s->%s:%d" %(min_res[sub_key], min_res[key], hamming(min_res[key], min_res[sub_key]))
+    print "%s->%s:%d" %(min_res[final_node],min_res[final_sub_node],hamming(min_res[final_node], min_res[final_sub_node]))
+    print "%s->%s:%d" %(min_res[final_sub_node],min_res[final_node],hamming(min_res[final_node], min_res[final_sub_node]))
+    
+    
+    # ##### rooted small parsimony
+    # f = open('test', 'r')
+    # graph = {}
+    # length = 0
+    # lines = f.readlines()
+    # n = int(lines[0])
+    # for i in xrange(len(lines)-1):
+    #     start = int(lines[i+1].strip().split('->')[0])
+    #     end = lines[i+1].strip().split('->')[1]
+    #     if not str.isdigit(end):
+    #         length = len(end)
+    #         new_key = i
+    #         graph[new_key] = {}
+    #         graph[new_key]['label'] = end
+    #     else:
+    #         new_key = int(end)
+    #     if not start in graph:
+    #         graph[start] = {}
+    #     graph[start][new_key] = 0 
+
+    # # res = root_small_parsimony(graph, 2)
     
 
-    res = {}
-    score = 0
+    # res = {}
+    # score = 0
 
-    for i in xrange(len(graph)):
-        res[i] = ''
-    for i in xrange(length):
-        tmp, tmp_score = root_small_parsimony(graph, i)
-        score += tmp_score
-        for j in xrange(len(graph)):
-            res[j] += tmp[j]
+    # for i in graph.keys():
+    #     res[i] = ''
+    # for i in xrange(length):
+    #     tmp, tmp_score = root_small_parsimony(graph, i)
+    #     score += tmp_score
+    #     for j in graph.keys():
+    #         res[j] += tmp[j]
 
-    for key in graph:
-        if 'label' not in graph[key]:
-            for sub_key in graph[key]:
-                print "%s->%s:%d" %(res[key], res[sub_key], hamming(res[key], res[sub_key]))
-                print "%s->%s:%d" %(res[sub_key], res[key], hamming(res[key], res[sub_key]))
-    print score        
+    # for key in graph:
+    #     if 'label' not in graph[key]:
+    #         for sub_key in graph[key]:
+    #             print "%s->%s:%d" %(res[key],res[sub_key],hamming(res[key], res[sub_key]))
+    #             print "%s->%s:%d" %(res[sub_key], res[key], hamming(res[key], res[sub_key]))
+    # print score        
             
 
     
