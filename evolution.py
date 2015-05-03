@@ -378,7 +378,7 @@ if __name__ == '__main__':
             # else:
             #     if (not int(start) in graph[new_key]):
             #         graph[int(start)][new_key] = 0
-    large_parsimony_min = small_parsimony_params(graph)[0]
+    neighbor_min_score = small_parsimony_params(graph)[0]
     ### loop through all the internal edges
     ### determine node1 and node2
     #### multiple choices
@@ -393,8 +393,10 @@ if __name__ == '__main__':
   ### interchange neighbors
     node1 = node_set.keys()[0]
     node2 = node_set[node1][0]
+    rm_node_set = []
     while True:
         ### update looped edges
+        update_graph = 0
         rm_key = []
         for key in node_set:
             if not node_set[key]:
@@ -417,8 +419,8 @@ if __name__ == '__main__':
         neighbors = nearest_neighbor(large_parsimony_graph, node1, node2)
         ### transform neighbors into unrooted small parsimony input
         for neighbor in neighbors:
-            update_graph = 0
-            neighbor_min_score = large_parsimony_min
+            # update_graph = 0
+            # neighbor_min_score = large_parsimony_min
             small_parsimony_graph = {}
             for i in graph:
                 if 'label' in graph[i]:
@@ -507,6 +509,7 @@ if __name__ == '__main__':
                 output_final_sub_node = final_sub_node
                 output_min_res = min_res
         if update_graph:
+            print 
             print neighbor_min_score
             # final_small_parsimony_graph.pop(final_add_key, None)
             for key in graph:
@@ -519,17 +522,29 @@ if __name__ == '__main__':
 
 
         node_set[node1].remove(node2)
+        rm_node_set.append((node1, node2))
         if node1 in node_set:
             for i in node_set[node1]:
                 if i not in graph[node1]:
                     if node2 in node_set:
-                        node_set[node2].append(i)
+                        if i not in  node_set[node2]:
+                            if i not in  node_set[node2] and (i,node2) not in rm_node_set and (node2, i) not in rm_node_set:
+                                node_set[node2].append(i)
                     node_set[node1].remove(i)
+        if 'label' not in graph[node2]:
+            for sub_node in graph[node2]:
+                if 'label' not in graph[sub_node]:
+                    if not node2 in node_set:
+                        node_set[node2] = []
+                    if sub_node not in  node_set[node2] and (sub_node,node2) not in rm_node_set and (node2, sub_node) not in rm_node_set:
+                        node_set[node2].append(sub_node)
+            
         if node2 in node_set:
             for i in node_set[node2]:
                 if i not in graph[node2]:
                     if node1 in node_set:
-                        node_set[node1].append(i)
+                        if i not in  node_set[node1] and (i,node1) not in rm_node_set and (node1, i) not in rm_node_set:
+                            node_set[node1].append(i) 
                     node_set[node2].remove(i)
 
 
