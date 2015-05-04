@@ -348,7 +348,8 @@ def pprint(final_graph, final_add_key,min_res, final_node, final_sub_node):
 if __name__ == '__main__':
 
 
-    ##### large parsimony
+
+   ##### large parsimony--- another try
     f = open('test', 'r')
     graph = {}
     length = 0
@@ -371,14 +372,11 @@ if __name__ == '__main__':
                 if not int(start) in graph:
                     graph[int(start)] = {}
                 graph[int(start)][new_key] = 0
-            # if not int(start) in graph:
-            #     graph[int(start)] = {}
-            # if not new_key in graph:
-            #     graph[int(start)][new_key] = 0
-            # else:
-            #     if (not int(start) in graph[new_key]):
-            #         graph[int(start)][new_key] = 0
-    neighbor_min_score = small_parsimony_params(graph)[0]
+    neighbor_min_score_re = small_parsimony_params(graph)
+    neighbor_min_score = neighbor_min_score_re[0]
+    print neighbor_min_score_re[0]
+    pprint(neighbor_min_score_re[1], neighbor_min_score_re[2], neighbor_min_score_re[3],
+           neighbor_min_score_re[4], neighbor_min_score_re[5])
     ### loop through all the internal edges
     ### determine node1 and node2
     #### multiple choices
@@ -396,11 +394,10 @@ if __name__ == '__main__':
                         node_set[node].append(sub_node)
       ### interchange neighbors
         node1 = node_set.keys()[0]
-        node2 = node_set[node1][len(node_set[node1])-1]
-        rm_node_set = []
+        node2 = node_set[node1][0]
         while True:
             ### update looped edges
-            update_graph = 0
+            # update_graph = 0
             rm_key = []
             for key in node_set:
                 if not node_set[key]:
@@ -457,16 +454,6 @@ if __name__ == '__main__':
                     if full_dict_count == 0:
                         full_dict =1
 
-
-
-                            # # if i>j  and (i not in small_parsimony_graph[j]):
-                            # #      small_parsimony_graph[i][j] = 0
-                            # if j not in small_parsimony_graph:
-                            #     small_parsimony_graph[i][j] = 0
-                            # else:
-                            #     if i not in small_parsimony_graph[j]:
-                            #         small_parsimony_graph[i][j] = 0
-
                 min_res = {}
                 min_score = 1000000
                 final_small_parsimony_graph = {}
@@ -503,64 +490,31 @@ if __name__ == '__main__':
 
                 if min_score<neighbor_min_score:
                     neighbor_min_score = min_score
-                    update_graph = 1
+                    # update_graph = 1
                     rerun_update_graph = 1
                     final_small_parsimony_graph.pop(final_add_key, None)
-                    graph = copy.deepcopy(final_small_parsimony_graph)
-                    graph[final_node][final_sub_node] = 0
+                    out_graph = copy.deepcopy(final_small_parsimony_graph)
+                    out_graph[final_node][final_sub_node] = 0
 
 
                     output_final_node = final_node
                     output_final_sub_node = final_sub_node
                     output_min_res = min_res
-            if update_graph:
-                print 
-                print neighbor_min_score
-                # final_small_parsimony_graph.pop(final_add_key, None)
-                for key in graph:
-                    if 'label' not in graph[key]:
-                        for sub_key in graph[key]:
-                            print "%s->%s:%d" %(output_min_res[key],output_min_res[sub_key],hamming(output_min_res[key], output_min_res[sub_key]))
-                            print "%s->%s:%d" %(output_min_res[sub_key], output_min_res[key], hamming(output_min_res[key], output_min_res[sub_key]))
-                print "%s->%s:%d" %(output_min_res[output_final_node],output_min_res[output_final_sub_node],hamming(output_min_res[output_final_node], output_min_res[output_final_sub_node]))
-                print "%s->%s:%d" %(output_min_res[output_final_sub_node],output_min_res[output_final_node],hamming(output_min_res[output_final_node], output_min_res[output_final_sub_node]))
-
 
             node_set[node1].remove(node2)
-            rm_node_set.append((node1, node2))
-            if node1 in node_set:
-                for i in node_set[node1]:
-                    if i not in graph[node1]:
-                        if not node2 in node_set:
-                            node_set[node2] = []
-                        if i not in  node_set[node2] and (i,node2) not in rm_node_set and (node2, i) not in rm_node_set:
-                            node_set[node2].append(i)
-                        node_set[node1].remove(i)
-            if 'label' not in graph[node2]:
-                for sub_node in graph[node2]:
-                    if 'label' not in graph[sub_node]:
-                        if not node2 in node_set:
-                            node_set[node2] = []
-                        if sub_node not in  node_set[node2] and (sub_node,node2) not in rm_node_set and (node2, sub_node) not in rm_node_set:
-                            node_set[node2].append(sub_node)
 
-            if node2 in node_set:
-                for i in node_set[node2]:
-                    if i not in graph[node2]:
-                        if not node1 in node_set:
-                            node_set[node1] = []
-                        if i not in  node_set[node1] and (i,node1) not in rm_node_set and (node1, i) not in rm_node_set:
-                            node_set[node1].append(i) 
-                        node_set[node2].remove(i)
-
-            if 'label' not in graph[node1]:
-                for sub_node in graph[node1]:
-                    if 'label' not in graph[sub_node]:
-                        if not node1 in node_set:
-                            node_set[node1] = []
-                        if sub_node not in  node_set[node1] and (sub_node,node1) not in rm_node_set and (node1, sub_node) not in rm_node_set:
-                            node_set[node1].append(sub_node)
-
+        if rerun_update_graph:
+            print 
+            print neighbor_min_score
+            # final_small_parsimony_graph.pop(final_add_key, None)
+            for key in out_graph:
+                if 'label' not in out_graph[key]:
+                    for sub_key in out_graph[key]:
+                        print "%s->%s:%d" %(output_min_res[key],output_min_res[sub_key],hamming(output_min_res[key], output_min_res[sub_key]))
+                        print "%s->%s:%d" %(output_min_res[sub_key], output_min_res[key], hamming(output_min_res[key], output_min_res[sub_key]))
+            # print "%s->%s:%d" %(output_min_res[output_final_node],output_min_res[output_final_sub_node],hamming(output_min_res[output_final_node], output_min_res[output_final_sub_node]))
+            # print "%s->%s:%d" %(output_min_res[output_final_sub_node],output_min_res[output_final_node],hamming(output_min_res[output_final_node], output_min_res[output_final_sub_node]))
+            graph = copy.deepcopy(out_graph)
 
 
                 # print min_score
@@ -572,6 +526,233 @@ if __name__ == '__main__':
                 #             print "%s->%s:%d" %(min_res[sub_key], min_res[key], hamming(min_res[key], min_res[sub_key]))
                 # print "%s->%s:%d" %(min_res[final_node],min_res[final_sub_node],hamming(min_res[final_node], min_res[final_sub_node]))
                 # print "%s->%s:%d" %(min_res[final_sub_node],min_res[final_node],hamming(min_res[final_node], min_res[final_sub_node]))
+
+
+
+    # ##### large parsimony
+    # f = open('test', 'r')
+    # graph = {}
+    # length = 0
+    # lines = f.readlines()
+    # org_key = -1
+    # n = int(lines[0])
+    # for i in xrange(len(lines)-1):
+    #     start = lines[i+1].strip().split('->')[0]
+    #     end = lines[i+1].strip().split('->')[1]
+    #     if str.isdigit(start):
+    #         if not str.isdigit(end):
+    #             length = len(end)
+    #             new_key = org_key+1
+    #             org_key = new_key
+    #             graph[new_key] = {}
+    #             graph[new_key]['label'] = end
+    #         else:
+    #             new_key = int(end)
+    #         if int(start) > new_key:
+    #             if not int(start) in graph:
+    #                 graph[int(start)] = {}
+    #             graph[int(start)][new_key] = 0
+    #         # if not int(start) in graph:
+    #         #     graph[int(start)] = {}
+    #         # if not new_key in graph:
+    #         #     graph[int(start)][new_key] = 0
+    #         # else:
+    #         #     if (not int(start) in graph[new_key]):
+    #         #         graph[int(start)][new_key] = 0
+    # neighbor_min_score = small_parsimony_params(graph)[0]
+    # ### loop through all the internal edges
+    # ### determine node1 and node2
+    # #### multiple choices
+    # rerun_update_graph = 1
+
+    # while rerun_update_graph:
+    #     rerun_update_graph = 0
+    #     node_set = {}
+    #     for node in graph:
+    #         if  'label' not in graph[node]:
+    #             for sub_node in graph[node]:
+    #                 if 'label' not in graph[sub_node]:
+    #                     if not node in node_set:
+    #                         node_set[node] = [] 
+    #                     node_set[node].append(sub_node)
+    #   ### interchange neighbors
+    #     node1 = node_set.keys()[0]
+    #     node2 = node_set[node1][len(node_set[node1])-1]
+    #     rm_node_set = []
+    #     while True:
+    #         ### update looped edges
+    #         update_graph = 0
+    #         rm_key = []
+    #         for key in node_set:
+    #             if not node_set[key]:
+    #                 rm_key.append(key)
+    #         for key in rm_key:
+    #             node_set.pop(key, None)
+    #         if not node_set:
+    #             break
+
+    #         node1 = node_set.keys()[0]
+    #         node2 = node_set[node1][0]
+    #         large_parsimony_graph = {}
+    #         for i in graph:
+    #             large_parsimony_graph[i] = []
+    #         for i in graph:
+    #             for j in graph[i]:
+    #                 if len(graph[i])>1:
+    #                     large_parsimony_graph[i].append(j)
+    #                     large_parsimony_graph[j].append(i)
+    #         neighbors = nearest_neighbor(large_parsimony_graph, node1, node2)
+    #         ### transform neighbors into unrooted small parsimony input
+    #         for neighbor in neighbors:
+    #             # update_graph = 0
+    #             # neighbor_min_score = large_parsimony_min
+    #             small_parsimony_graph = {}
+    #             for i in graph:
+    #                 if 'label' in graph[i]:
+    #                     small_parsimony_graph[i] = {}
+    #                     small_parsimony_graph[i]['label'] = graph[i]['label']
+    #                 else:
+    #                     small_parsimony_graph[i] = {}
+    #                     count_ripe = 0
+    #                     for j in neighbor[i]:
+    #                         if j in small_parsimony_graph and len(small_parsimony_graph[j])>0:
+    #                             count_ripe += 1
+    #                     if count_ripe >1:
+    #                         for j in neighbor[i]:
+    #                              if   j in small_parsimony_graph and len(small_parsimony_graph[j])>0:
+    #                                  small_parsimony_graph[i][j] = 0
+    #             full_dict = 0
+    #             while not full_dict:
+    #                 full_dict_count = 0
+    #                 for i in small_parsimony_graph:
+    #                     if not small_parsimony_graph[i]:
+    #                         full_dict_count += 1
+    #                         count_ripe = 0
+    #                         for j in neighbor[i]:
+    #                             if j in small_parsimony_graph and len(small_parsimony_graph[j])>0:
+    #                                 count_ripe += 1
+    #                         if count_ripe >1:
+    #                             for j in neighbor[i]:
+    #                                 if   j in small_parsimony_graph and len(small_parsimony_graph[j])>0:
+    #                                     small_parsimony_graph[i][j] = 0
+    #                 if full_dict_count == 0:
+    #                     full_dict =1
+
+
+
+    #                         # # if i>j  and (i not in small_parsimony_graph[j]):
+    #                         # #      small_parsimony_graph[i][j] = 0
+    #                         # if j not in small_parsimony_graph:
+    #                         #     small_parsimony_graph[i][j] = 0
+    #                         # else:
+    #                         #     if i not in small_parsimony_graph[j]:
+    #                         #         small_parsimony_graph[i][j] = 0
+
+    #             min_res = {}
+    #             min_score = 1000000
+    #             final_small_parsimony_graph = {}
+    #             final_node = 0
+    #             final_sub_node = 0
+    #             final_add_key = 0
+    #             for node in small_parsimony_graph:
+    #                 if  'label' not in small_parsimony_graph[node] and len(small_parsimony_graph[node])==3:
+    #                     for sub_node in small_parsimony_graph[node]:
+    #                         if 'label' not in small_parsimony_graph[sub_node]:
+    #                             tmp_small_parsimony_graph = copy.deepcopy(small_parsimony_graph)
+    #                             add_key = max(tmp_small_parsimony_graph.keys())+1
+    #                             tmp_small_parsimony_graph[add_key] = {}
+    #                             tmp_small_parsimony_graph[add_key][node] = 0
+    #                             tmp_small_parsimony_graph[add_key][sub_node] = 0
+    #                             tmp_small_parsimony_graph[node].pop(sub_node, None)
+    #                             score = 0
+    #                             res = {}
+    #                             for i in tmp_small_parsimony_graph.keys():
+    #                                 res[i] = ''
+    #                             for i in xrange(length):
+    #                                 tmp, tmp_score = root_small_parsimony(tmp_small_parsimony_graph, i)
+    #                                 score += tmp_score
+    #                                 for j in tmp_small_parsimony_graph.keys():
+    #                                     res[j] += tmp[j]
+    #                             if score<min_score:
+    #                                 min_score = score
+    #                                 min_res = copy.deepcopy(res)
+    #                                 final_small_parsimony_graph = copy.deepcopy(tmp_small_parsimony_graph)
+    #                                 final_node = node
+    #                                 final_sub_node = sub_node
+    #                                 final_add_key = add_key
+    #                             # # small_parsimony_graph.pop(max(small_parsimony_graph.keys())+1, None)
+
+    #             if min_score<neighbor_min_score:
+    #                 neighbor_min_score = min_score
+    #                 update_graph = 1
+    #                 rerun_update_graph = 1
+    #                 final_small_parsimony_graph.pop(final_add_key, None)
+    #                 graph = copy.deepcopy(final_small_parsimony_graph)
+    #                 graph[final_node][final_sub_node] = 0
+
+
+    #                 output_final_node = final_node
+    #                 output_final_sub_node = final_sub_node
+    #                 output_min_res = min_res
+    #         if update_graph:
+    #             print 
+    #             print neighbor_min_score
+    #             # final_small_parsimony_graph.pop(final_add_key, None)
+    #             for key in graph:
+    #                 if 'label' not in graph[key]:
+    #                     for sub_key in graph[key]:
+    #                         print "%s->%s:%d" %(output_min_res[key],output_min_res[sub_key],hamming(output_min_res[key], output_min_res[sub_key]))
+    #                         print "%s->%s:%d" %(output_min_res[sub_key], output_min_res[key], hamming(output_min_res[key], output_min_res[sub_key]))
+    #             print "%s->%s:%d" %(output_min_res[output_final_node],output_min_res[output_final_sub_node],hamming(output_min_res[output_final_node], output_min_res[output_final_sub_node]))
+    #             print "%s->%s:%d" %(output_min_res[output_final_sub_node],output_min_res[output_final_node],hamming(output_min_res[output_final_node], output_min_res[output_final_sub_node]))
+
+
+    #         node_set[node1].remove(node2)
+    #         rm_node_set.append((node1, node2))
+    #         if node1 in node_set:
+    #             for i in node_set[node1]:
+    #                 if i not in graph[node1]:
+    #                     if not node2 in node_set:
+    #                         node_set[node2] = []
+    #                     if i not in  node_set[node2] and (i,node2) not in rm_node_set and (node2, i) not in rm_node_set:
+    #                         node_set[node2].append(i)
+    #                     node_set[node1].remove(i)
+    #         if 'label' not in graph[node2]:
+    #             for sub_node in graph[node2]:
+    #                 if 'label' not in graph[sub_node]:
+    #                     if not node2 in node_set:
+    #                         node_set[node2] = []
+    #                     if sub_node not in  node_set[node2] and (sub_node,node2) not in rm_node_set and (node2, sub_node) not in rm_node_set:
+    #                         node_set[node2].append(sub_node)
+
+    #         if node2 in node_set:
+    #             for i in node_set[node2]:
+    #                 if i not in graph[node2]:
+    #                     if not node1 in node_set:
+    #                         node_set[node1] = []
+    #                     if i not in  node_set[node1] and (i,node1) not in rm_node_set and (node1, i) not in rm_node_set:
+    #                         node_set[node1].append(i) 
+    #                     node_set[node2].remove(i)
+
+    #         if 'label' not in graph[node1]:
+    #             for sub_node in graph[node1]:
+    #                 if 'label' not in graph[sub_node]:
+    #                     if not node1 in node_set:
+    #                         node_set[node1] = []
+    #                     if sub_node not in  node_set[node1] and (sub_node,node1) not in rm_node_set and (node1, sub_node) not in rm_node_set:
+    #                         node_set[node1].append(sub_node)
+
+
+
+    #             # print min_score
+    #             # final_small_parsimony_graph.pop(final_add_key, None)
+    #             # for key in final_small_parsimony_graph:
+    #             #     if 'label' not in final_small_parsimony_graph[key]:
+    #             #         for sub_key in final_small_parsimony_graph[key]:
+    #             #             print "%s->%s:%d" %(min_res[key],min_res[sub_key],hamming(min_res[key], min_res[sub_key]))
+    #             #             print "%s->%s:%d" %(min_res[sub_key], min_res[key], hamming(min_res[key], min_res[sub_key]))
+    #             # print "%s->%s:%d" %(min_res[final_node],min_res[final_sub_node],hamming(min_res[final_node], min_res[final_sub_node]))
+    #             # print "%s->%s:%d" %(min_res[final_sub_node],min_res[final_node],hamming(min_res[final_node], min_res[final_sub_node]))
 
 
                 
