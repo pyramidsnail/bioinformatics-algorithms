@@ -153,8 +153,7 @@ Sample Output:
 5->2:16.500
 5->4:2.000
 
-
-* 
+* DONE 
 CODE CHALLENGE: Implement SmallParsimony to solve the Small Parsimony Problem.
      Input: An integer n followed by an adjacency list for a rooted binary tree with n leaves
      labeled by DNA strings.
@@ -189,7 +188,7 @@ ATAGCCAC->ATTGCGAC:2
 ATAGCCAC->ATAGACAA:2
 CAAATCCC->ATAGCCAC:5
 
-* CODE CHALLENGE: Solve the Small Parsimony in an Unrooted Tree Problem.
+* DONE CODE CHALLENGE: Solve the Small Parsimony in an Unrooted Tree Problem.
      Input: An integer n followed by an adjacency list for an unrooted binary tree with n leaves
      labeled by DNA strings.
      Output: The minimum parsimony score of this tree, followed by the adjacency list of the
@@ -225,7 +224,7 @@ CAAGGAAC->CCAGGCAC:2
 
 Time Limit: 5 mins
 
-* Sample Input:
+* DONE Sample Input:
 5 4
 0->4
 4->0
@@ -260,7 +259,7 @@ Sample Output:
 4->5
 4->3
 
-* 
+* DONE 
 Sample Input:
 4
 CGAAGATTCTAA->4
@@ -300,3 +299,84 @@ ATGCCGGGCTCG->CTTTCAGGCTCG:4
 
 Time Limit: 5 mins
 
+
+
+* CODE CHALLENGE: Implement the FarthestFirstTraversal clustering heuristic.
+     Input: Integers k and m followed by a set of points Data in m-dimensional space.
+     Output: A set Centers consisting of k points (centers) resulting from applying
+     FarthestFirstTraversal(Data, k), where the first point from Data is chosen as the
+     first center to initialize the algorithm.
+
+Extra Dataset
+
+Sample Input:
+3 2
+0.0 0.0
+5.0 5.0
+0.0 5.0
+1.0 1.0
+2.0 2.0
+3.0 3.0
+1.0 2.0
+Sample Output:
+0.0 0.0
+5.0 5.0
+0.0 5.0
+
+
+* Squared Error Distortion Problem:  Compute the squared error distortion of a set of data points with respect to a set of centers. 
+  Input: A set of points Data and a set of centers Centers. 
+  Output: The squared error distortion Distortion(Data, Centers). 
+
+CODE CHALLENGE: Solve the Squared Error Distortion Problem.
+     Input: Integers k and m, followed by a set of centers Centers and a set of points Data.
+     Output: The squared error distortion Distortion(Data, Centers).
+
+Extra Dataset
+
+Sample Input:
+2 2
+2.31 4.55
+5.96 9.08
+--------
+3.42 6.03
+6.23 8.25
+4.76 1.64
+4.47 4.33
+3.95 7.61
+8.93 2.97
+9.74 4.03
+1.73 1.28
+9.72 5.01
+7.27 3.77
+Sample Output:
+18.246
+
+* CODE CHALLENGE: Implement the Lloyd algorithm for k-means clustering.
+     Input: Integers k and m followed by a set of points Data in m-dimensional space.
+     Output: A set Centers consisting of k points (centers) resulting from applying the
+     Lloyd algorithm to Data and Centers, where the first k points from Data are selected
+     as the first k centers.
+
+Extra Dataset
+
+Sample Input:
+2 2
+1.3 1.1
+1.3 0.2
+0.6 2.8
+3.0 3.2
+1.2 0.7
+1.4 1.6
+1.2 1.0
+1.2 1.1
+0.6 1.5
+1.8 2.6
+1.2 1.3
+1.2 1.0
+0.0 1.9
+Sample Output:
+1.800 2.867
+1.060 1.140
+
+Time Limit: 5 mins
