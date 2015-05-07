@@ -22,7 +22,57 @@ def FarthestFirstTraversal(data, k):
     return centers
 
 
+def distortion(data, centers):
+    total = 0
+    for i in data:
+        min_dis = 1000000000
+        for j in centers:
+            tmp_dis = 0
+            for k in xrange(len(j)):
+                tmp_dis += (i[k]-j[k])**2
+            if tmp_dis < min_dis:
+                min_dis = tmp_dis
+        total += min_dis
+    return total/len(data)
+
+
+def Lloyd(data, k):
+    centers = data[0:k]
+    total = 1000000000
+    while total > 1e-9:
+        graph = {}
+        for i in xrange(k):
+            graph[i] = []
+        for i in data:
+            if i not in centers:
+                min_dis = 1000000000
+                for j in centers:
+                    tmp_dis = 0
+                    for n in xrange(len(data[0])):
+                        tmp_dis += (i[n]-j[n])**2
+                    if tmp_dis < min_dis:
+                        min_dis = tmp_dis
+                        final_center = j
+                graph[centers.index(final_center)].append(i)
+        gravity = []
+        for i in xrange(k):
+            gravity.append([])
+            for j in xrange(len(data[0])):
+                tmp = 0                        
+                for n in xrange(len(graph[i])):
+                    tmp += graph[i][n][j]
+                gravity[i].append(tmp/len(graph[i])) if len(graph[i])!=0 else gravity[i].append(0)
+
+        total = 0
+        for i in xrange(len(centers)):
+            for j in xrange(len(centers[0])):
+                total += (centers[i][j]-gravity[i][j])**2
+        centers = gravity
+    return centers
+    
+
 if  __name__ == '__main__':
+
     f = open('test', 'r')
     lines = f.readlines()
     k = int(lines[0].split()[0])
@@ -30,10 +80,37 @@ if  __name__ == '__main__':
     data = []
     for line in lines[1:]:
         data.append([float(x) for x in line.split()])
-    res = FarthestFirstTraversal(data, k)
+    res = Lloyd(data, k)
 
-    for i in res:
-        for j in i:
-            print j,
-        print
+
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # k = int(lines[0].split()[0])
+    # m = int(lines[0].split()[1])
+    # centers = []
+    # for line in lines[1:k+1]:
+    #     centers.append([float(x) for x in line.split()])
+    # data = []
+    # for line in lines[k+2:]:
+    #     data.append([float(x) for x in line.split()])
+    # res = distortion(data, centers)
+
+    # print res
+
+
+
+
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # k = int(lines[0].split()[0])
+    # m = int(lines[0].split()[1])
+    # data = []
+    # for line in lines[1:]:
+    #     data.append([float(x) for x in line.split()])
+    # res = FarthestFirstTraversal(data, k)
+
+    # for i in res:
+    #     for j in i:
+    #         print j,
+    #     print
 
