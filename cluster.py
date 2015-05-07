@@ -44,16 +44,15 @@ def Lloyd(data, k):
         for i in xrange(k):
             graph[i] = []
         for i in data:
-            if i not in centers:
-                min_dis = 1000000000
-                for j in centers:
-                    tmp_dis = 0
-                    for n in xrange(len(data[0])):
-                        tmp_dis += (i[n]-j[n])**2
-                    if tmp_dis < min_dis:
-                        min_dis = tmp_dis
-                        final_center = j
-                graph[centers.index(final_center)].append(i)
+            min_dis = 1000000000
+            for j in centers:
+                tmp_dis = 0
+                for n in xrange(len(data[0])):
+                    tmp_dis += (i[n]-j[n])**2
+                if tmp_dis < min_dis:
+                    min_dis = tmp_dis
+                    final_center = j
+            graph[centers.index(final_center)].append(i)
         gravity = []
         for i in xrange(k):
             gravity.append([])
@@ -73,29 +72,34 @@ def Lloyd(data, k):
 
 if  __name__ == '__main__':
 
-    f = open('test', 'r')
-    lines = f.readlines()
-    k = int(lines[0].split()[0])
-    m = int(lines[0].split()[1])
-    data = []
-    for line in lines[1:]:
-        data.append([float(x) for x in line.split()])
-    res = Lloyd(data, k)
-
-
     # f = open('test', 'r')
     # lines = f.readlines()
     # k = int(lines[0].split()[0])
     # m = int(lines[0].split()[1])
-    # centers = []
-    # for line in lines[1:k+1]:
-    #     centers.append([float(x) for x in line.split()])
     # data = []
-    # for line in lines[k+2:]:
+    # for line in lines[1:]:
     #     data.append([float(x) for x in line.split()])
-    # res = distortion(data, centers)
+    # res = Lloyd(data, k)
+    # for i in res:
+    #     for j in i:
+    #         print "%.3f" %j,
 
-    # print res
+    #     print
+
+
+    f = open('test', 'r')
+    lines = f.readlines()
+    k = int(lines[0].split()[0])
+    m = int(lines[0].split()[1])
+    centers = []
+    for line in lines[1:k+1]:
+        centers.append([float(x) for x in line.split()])
+    data = []
+    for line in lines[k+2:]:
+        data.append([float(x) for x in line.split()])
+    res = distortion(data, centers)
+
+    print res
 
 
 
