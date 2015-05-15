@@ -1,4 +1,4 @@
-import sys, os, re
+import sys, os, re, math
 
 def FarthestFirstTraversal(data, k):
     start = data[0]
@@ -71,8 +71,60 @@ def Lloyd(data, k):
     
 
 
-def 
+def expectationMax(data, k, beta, times):
+    centers = data[0:k]
+    # centers = [[2.5],[-2.5]]
+    n = 0
+    while n<times:
+        n += 1
+        hiddenMatrix = [[0]*k for i in xrange(len(data))]
+        for i in xrange(len(data)):
+            dic = {}
+            total = 0
+            for j in xrange(len(centers)):
+                distance = 0
+                for m in xrange(len(data[i])):
+                    distance += (data[i][m]-centers[j][m])**2
+                dic[j] = math.sqrt(distance)
+                total +=  math.exp(-beta*math.sqrt(distance))
+            for center in xrange(len(centers)):
+                hiddenMatrix[i][center] = math.exp(-beta*dic[center])/total
+
+        ########### update the centers
+        for i in xrange(len(centers)):
+            for j in xrange(len(centers[i])):
+                numerator = 0
+                denominator = 0
+                for m in xrange(len(data)):
+                    numerator += hiddenMatrix[m][i]*data[m][j]
+                    denominator += hiddenMatrix[m][i]
+                centers[i][j] = numerator/denominator
+
+    return centers
+
+
+
+
+
+                
 if  __name__ == '__main__':
+
+
+    f = open('test', 'r')
+    lines = f.readlines()
+    k = int(lines[0].split()[0])
+    m = int(lines[0].split()[1])
+    beta = float(lines[1])
+    data = []
+    for line in lines[2:]:
+        data.append([float(x) for x in line.split()])
+    res = expectationMax(data, k, beta, 100)
+    for i in res:
+        for j in i:
+            print "%.3f" %j,
+
+        print
+
 
     # f = open('test', 'r')
     # lines = f.readlines()
@@ -89,19 +141,19 @@ if  __name__ == '__main__':
     #     print
 
 
-    f = open('test', 'r')
-    lines = f.readlines()
-    k = int(lines[0].split()[0])
-    m = int(lines[0].split()[1])
-    centers = []
-    for line in lines[1:k+1]:
-        centers.append([float(x) for x in line.split()])
-    data = []
-    for line in lines[k+2:]:
-        data.append([float(x) for x in line.split()])
-    res = distortion(data, centers)
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # k = int(lines[0].split()[0])
+    # m = int(lines[0].split()[1])
+    # centers = []
+    # for line in lines[1:k+1]:
+    #     centers.append([float(x) for x in line.split()])
+    # data = []
+    # for line in lines[k+2:]:
+    #     data.append([float(x) for x in line.split()])
+    # res = distortion(data, centers)
 
-    print res
+    # print res
 
 
 
