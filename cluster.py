@@ -1,4 +1,4 @@
-import sys, os, re, math
+import sys, os, re, math, copy
 
 def FarthestFirstTraversal(data, k):
     start = data[0]
@@ -72,7 +72,7 @@ def Lloyd(data, k):
 
 
 def expectationMax(data, k, beta, times):
-    centers = data[0:k]
+    centers = copy.deepcopy(data[0:k])
     # centers = [[2.5],[-2.5]]
     n = 0
     while n<times:
@@ -102,6 +102,7 @@ def expectationMax(data, k, beta, times):
 
     return centers
 
+def hierachical(data):
 
 
 
