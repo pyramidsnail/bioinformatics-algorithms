@@ -102,7 +102,62 @@ def expectationMax(data, k, beta, times):
 
     return centers
 
-def hierachical(data):
+def hierachical(graph):
+    times = len(graph)
+    n = 1
+    new_key = times+1
+
+    cluster = {}
+    for i in xrange(1,times+1):
+        cluster[i] = {}
+        cluster[i]['size'] = 1
+        cluster[i]['items'] = [i]
+        
+    while n<times:
+        cluster[new_key] = {}
+        n += 1
+        min_value = 1000000
+        start = 0
+        end = 0
+        graph[new_key] = {}
+        for i in graph:
+            for j in graph[i]:
+                if graph[i][j]<min_value:
+                    min_value = graph[i][j]
+                    start = i
+                    end = j
+        for i in graph:
+            if i!=new_key:
+                total = 0
+                if start in graph[i]:
+                    total += graph[i][start]*cluster[start]['size']
+                if i in graph[start]:
+                    total += graph[start][i]*cluster[start]['size']
+                if end in graph[i]:
+                    total += graph[i][end]*cluster[end]['size']
+                if i in graph[end]:
+                    total += graph[end][i]*cluster[end]['size']
+
+                size = cluster[start]['size']+cluster[end]['size']
+                cluster[new_key]['size'] = size
+                cluster[new_key]['items'] = list(set(cluster[start]['items']+cluster[end]['items']))
+                graph[new_key][i] = 1.0*total/size
+
+        for i in graph:
+            if start in graph[i]:
+                graph[i].pop(start, None)
+            if end in graph[i]:
+                graph[i].pop(end, None)
+
+        graph.pop(start, None)
+        graph.pop(end, None)
+
+        for items in cluster[new_key]['items']:          
+            print items,
+        print 
+
+        new_key += 1
+        
 
 
 
@@ -113,18 +168,32 @@ if  __name__ == '__main__':
 
     f = open('test', 'r')
     lines = f.readlines()
-    k = int(lines[0].split()[0])
-    m = int(lines[0].split()[1])
-    beta = float(lines[1])
-    data = []
-    for line in lines[2:]:
-        data.append([float(x) for x in line.split()])
-    res = expectationMax(data, k, beta, 100)
-    for i in res:
-        for j in i:
-            print "%.3f" %j,
+    n = int(lines[0].split()[0])
+    graph = {}
+    key = 1
+    for line in lines[1:]:
+        graph[key] = {}
+        items = line.strip().split()
+        for i in xrange(key,n):
+            graph[key][i+1] = float(items[i])
+        key += 1
 
-        print
+    hierachical(graph)
+
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # k = int(lines[0].split()[0])
+    # m = int(lines[0].split()[1])
+    # beta = float(lines[1])
+    # data = []
+    # for line in lines[2:]:
+    #     data.append([float(x) for x in line.split()])
+    # res = expectationMax(data, k, beta, 100)
+    # for i in res:
+    #     for j in i:
+    #         print "%.3f" %j,
+
+    #     print
 
 
     # f = open('test', 'r')
