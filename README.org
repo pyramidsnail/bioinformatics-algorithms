@@ -542,3 +542,218 @@ Sample Output:
 1.1005510319694847e-06
 
 Time Limit: 5 mins
+
+* CODE CHALLENGE: Solve the Profile HMM Problem.
+     Input: A threshold θ, followed by an alphabet Σ, followed by a multiple alignment
+     Alignment whose strings are formed from Σ.
+     Output: The transition matrix followed by the emission matrix of HMM(Alignment, θ).
+
+Note: Your matrices can be either space-separated or tab-separated.
+
+Extra Dataset
+
+Sample Input:
+0.289
+--------
+A B C D E
+--------
+EBA
+E-D
+EB-
+EED
+EBD
+EBE
+E-D
+E-D
+Sample Output:
+	S	I0	M1	D1	I1	M2	D2	I2	E	
+S	0	0	1.0	0	0	0	0	0	0
+I0	0	0	0	0	0	0	0	0	0
+M1	0	0	0	0	0.625	0.375	0	0	0
+D1	0	0	0	0	0	0	0	0	0
+I1	0	0	0	0	0	0.8	0.2	0	0
+M2	0	0	0	0	0	0	0	0	1.0
+D2	0	0	0	0	0	0	0	0	1.0
+I2	0	0	0	0	0	0	0	0	0
+E	0	0	0	0	0	0	0	0	0
+--------
+	A	B	C	D	E
+S	0	0	0	0	0
+I0	0	0	0	0	0
+M1	0	0	0	0	1.0
+D1	0	0	0	0	0
+I1	0	0.8	0	0	0.2
+M2	0.143	0	0	0.714	0.143
+D2	0	0	0	0	0
+I2	0	0	0	0	0
+E	0	0	0	0	0
+
+Time Limit: 5 mins
+
+* CODE CHALLENGE: Solve the Profile HMM with Pseudocounts Problem.
+     Input: A threshold θ and a pseudocount σ, followed by an alphabet Σ, followed by a
+     multiple alignment Alignment whose strings are formed from Σ.
+     Output: The transition and emission matrices of HMM(Alignment, θ, σ).
+
+Note: Your matrices can be either space-separated or tab-separated.
+
+Extra Dataset
+
+Sample Input:
+0.358 0.01
+--------
+A B C D E
+--------
+A-A
+ADA
+ACA
+A-C
+-EA
+D-A
+Sample Output:
+	S	I0	M1	D1	I1	M2	D2	I2	E
+S	0	0.01	0.819	0.172	0	0	0	0	0
+I0	0	0.333	0.333	0.333	0	0	0	0	0
+M1	0	0	0	0	0.398	0.592	0.01	0	0
+D1	0	0	0	0	0.981	0.01	0.01	0	0
+I1	0	0	0	0	0.01	0.981	0.01	0	0
+M2	0	0	0	0	0	0	0	0.01	0.99
+D2	0	0	0	0	0	0	0	0.5	0.5
+I2	0	0	0	0	0	0	0	0.5	0.5
+E	0	0	0	0	0	0	0	0	0
+--------
+	A	B	C	D	E
+S	0	0	0	0	0
+I0	0.2	0.2	0.2	0.2	0.2
+M1	0.771	0.01	0.01	0.2	0.01
+D1	0	0	0	0	0
+I1	0.01	0.01	0.327	0.327	0.327
+M2	0.803	0.01	0.168	0.01	0.01
+D2	0	0	0	0	0
+I2	0.2	0.2	0.2	0.2	0.2
+E	0	0	0	0	0
+
+Time Limit: 5 mins
+* CODE CHALLENGE: Solve the Sequence Alignment with Profile HMM Problem.
+     Input: A string x followed by a threshold θ and a pseudocount σ, followed by an
+     alphabet Σ, followed by a multiple alignment Alignment whose strings are formed from Σ. 
+     Output: An optimal hidden path emitting x in HMM(Alignment, θ, σ).
+
+Extra Dataset
+
+Sample Input:
+AEFDFDC
+--------
+0.4 0.01
+--------
+A B C D E F
+--------
+ACDEFACADF
+AFDA---CCF
+A--EFD-FDC
+ACAEF--A-C
+ADDEFAAADF
+Sample Output:
+M1 D2 D3 M4 M5 I5 M6 M7 M8
+
+Time Limit: 5 mins
+* CODE CHALLENGE: Solve the HMM Parameter Estimation Problem.
+     Input: A string x of symbols emitted from an HMM, followed by the HMM's alphabet Σ,
+     followed by a path π, followed by the collection of states of the HMM.
+     Output: A transition matrix Transition followed by an emission matrix Emission that maximize
+     Pr(x, π) over all possible transition and emission matrices.
+
+Extra Dataset
+
+Sample Input:
+yzzzyxzxxx
+--------
+x y z
+--------
+BBABABABAB
+--------
+A B C
+Sample Output:
+	A	B	C
+A	0.0	1.0	0.0
+B	0.8	0.2	0.0
+C	0.333	0.333	0.333
+--------
+	x	y	z
+A	0.25	0.25	0.5
+B	0.5	0.167	0.333
+C	0.333	0.333	0.333
+
+Time Limit: 5 mins
+
+* CODE CHALLENGE: Implement Viterbi learning for estimating the parameters of an HMM.
+     Input: A number of iterations j, followed by a string x of symbols emitted by an HMM,
+     followed by the HMM's alphabet Σ, followed by the HMM's states, followed by initial transition
+     and emission matrices for the HMM.
+     Output: Emission and transition matrices resulting from applying Viterbi learning for j iterations.
+
+Extra Dataset
+
+Sample Input:
+100
+--------
+zyzxzxxxzz
+--------
+x y z
+--------
+A B
+--------
+	A	B
+A	0.599	0.401	
+B	0.294	0.706	
+--------
+	x	y	z
+A	0.424	0.367	0.209	
+B	0.262	0.449	0.289
+Sample Output:
+	A	B
+A	0.5	0.5	
+B	0.0	1.0	
+--------
+	x	y	z
+A	0.333	0.333	0.333	
+B	0.4	0.1	0.5
+
+Time Limit: 5 mins
+
+* CODE CHALLENGE: Solve the Soft Decoding Problem.
+     Input: A string x, followed by the alphabet Σ from which x was constructed,
+     followed by the states States, transition matrix Transition, and emission matrix
+     Emission of an HMM (Σ, States, Transition, Emission).
+     Output: An |x| x |States| matrix whose (i, k)-th element holds the conditional probability Pr(πi = k|x).
+
+Extra Dataset
+
+Sample Input:
+zyxxxxyxzz
+--------
+x y z
+--------
+A B
+--------
+	A	B
+A	0.911	0.089
+B	0.228	0.772
+--------
+	x	y	z
+A	0.356	0.191	0.453 
+B	0.040	0.467	0.493
+Sample Output:
+A	B 
+0.5438	0.4562 
+0.6492	0.3508 
+0.9647	0.0353 
+0.9936	0.0064 
+0.9957	0.0043 
+0.9891	0.0109 
+0.9154	0.0846 
+0.964	0.036 
+0.8737	0.1263 
+0.8167	0.1833
+
+Time Limit: 5 mins
