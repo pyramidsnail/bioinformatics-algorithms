@@ -141,16 +141,16 @@ def profile_hmm(thresh, alphabet, alignment):
     for i in xrange(1,len(alignment[0])-len(insert_index)+1):
         index_list.extend(['M'+str(i), 'D'+str(i), 'I'+str(i)])
     index_list.append('E')
-    print '  ',
+    print ' ',
     for i in index_list:
         print i,
     print
     for i in index_list:
-        print i+' ',
+        print i,
         if i in transition:
             for j in index_list:
                 if j in transition[i]:
-                    print transition[i][j],
+                    print round(transition[i][j],3),
                 else:
                     print 0,
             print
@@ -170,36 +170,41 @@ def profile_hmm(thresh, alphabet, alignment):
 
 
     ##### print emission table
-    print '  ',
+    print ' ',
     for i in alphabet:
         print i,
     print
-    print 'S ',
+    print 'S',
     for i in alphabet:
-        print emission['S'][i],
+        print round(emission['S'][i],3),
     print
-    print 'I0 ',
-    print ' '.join([str(x) for x in dict(sorted(emission['I0'].items())).values()])
+    print 'I0',
+    for j in alphabet:
+        print round(emission['I0'][j],3),
+    print
+
+    # print ' '.join([str(x) for x in dict(sorted(emission['I0'].items())).values()])
     for i in xrange(1,len(alignment[0])-len(insert_index)+1):
-        print 'I'+str(i)+' ',
+
+        print 'M'+str(i),
         for j in alphabet:
-            print emission['I'+str(i)][j],
+            print round(emission['M'+str(i)][j],3),
         print
 
-        print 'M'+str(i)+' ',
+        print 'D'+str(i),
         for j in alphabet:
-            print emission['M'+str(i)][j],
+            print round(emission['D'+str(i)][j],3),
+        print
+        print 'I'+str(i),
+        for j in alphabet:
+            print round(emission['I'+str(i)][j],3),
         print
 
-        print 'D'+str(i)+' ',
-        for j in alphabet:
-            print emission['D'+str(i)][j],
-        print
         
 
     print 'E ',
     for j in alphabet:
-        print emission['E'][j],
+        print round(emission['E'][j],3),
     print
 
 
