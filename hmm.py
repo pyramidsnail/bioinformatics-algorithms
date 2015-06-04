@@ -288,7 +288,7 @@ def profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment):
         for j in alignment:
             if j[i] == '-':
                 total += 1
-        if total > thresh:
+        if total >= thresh:
             insert_index.append(i)
 
     emission = {}
@@ -322,12 +322,20 @@ def profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment):
             total = 0
             for sub_key in emission[key]:
                 total += emission[key][sub_key]
-            for sub_key in emission[key]:
-                if total > 0:
-                    emission[key][sub_key] = (1.0*emission[key][sub_key]+pseu)/total
-                    emission[key][sub_key] = (emission[key][sub_key]+pseu)/(1+pseu*len(emission[key]))
-                else:
-                    emission[key][sub_key] = 0.2
+            if total > 0:
+                sub_total = 0
+                for sub_key in emission[key]:
+                    emission[key][sub_key] = (1.0*emission[key][sub_key])/total+pseu
+                    # emission[key][sub_key] = (emission[key][sub_key]+pseu)/(1+pseu*len(emission[key]))
+                    # emission[key][sub_key] = (emission[key][sub_key]+pseu)/(1+pseu*len(alphabet))
+                    sub_total +=  1.0*emission[key][sub_key]
+                for sub_key in emission[key]:
+                    emission[key][sub_key] =  emission[key][sub_key]/sub_total
+
+
+            else:
+                for sub_key in emission[key]:
+                    emission[key][sub_key] = 1.0/len(alphabet)
     transition = {}
     transition['S']={}
     transition['S']['I0'] = 0
@@ -370,7 +378,13 @@ def profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment):
         if not 'E' in transition['M'+str(len(alignment[0])-len(insert_index))]:
             transition['M'+str(len(alignment[0])-len(insert_index))]['E'] = 0
                     
-
+    for i in xrange(1,len(alignment[0])-len(insert_index)+1):
+        if not 'I'+str(i) in transition:
+            transition['I'+str(i)] = {}
+        if not 'M'+str(i) in transition:
+            transition['M'+str(i)] = {}
+        if not 'D'+str(i) in transition:
+            transition['D'+str(i)] = {}
 
     for key in transition:
         if key!='E':
@@ -401,70 +415,70 @@ def profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment):
                     if len(transition[key])==2:                        
                         transition[key][sub_key] = 0.5
 
-    return transition, emission
-    # ##### PRINT transition table
-    # index_list = ['S', 'I0']
-    # for i in xrange(1,len(alignment[0])-len(insert_index)+1):
-    #     index_list.extend(['M'+str(i), 'D'+str(i), 'I'+str(i)])
-    # index_list.append('E')
-    # print ' ',
-    # for i in index_list:
-    #     print i,
-    # print
-    # for i in index_list:
-    #     print i,
-    #     if i in transition:
-    #         for j in index_list:
-    #             if j in transition[i]:
-    #                 print round(transition[i][j],3),
-    #             else:
-    #                 print 0,
-    #         print
-    #     else:
-    #         for j in index_list:
-    #             print 0,
-    #         print
+    # return transition, emission
+    ##### PRINT transition table
+    index_list = ['S', 'I0']
+    for i in xrange(1,len(alignment[0])-len(insert_index)+1):
+        index_list.extend(['M'+str(i), 'D'+str(i), 'I'+str(i)])
+    index_list.append('E')
+    print ' ',
+    for i in index_list:
+        print i,
+    print
+    for i in index_list:
+        print i,
+        if i in transition:
+            for j in index_list:
+                if j in transition[i]:
+                    print round(transition[i][j],3),
+                else:
+                    print 0,
+            print
+        else:
+            for j in index_list:
+                print 0,
+            print
 
-    # print '--------'
+    print '--------'
                 
             
-    # ##### print emission table
-    # print ' ',
-    # for i in alphabet:
-    #     print i,
-    # print
-    # print 'S',
-    # for i in alphabet:
-    #     print round(emission['S'][i],3),
-    # print
-    # print 'I0',
-    # for j in alphabet:
-    #     print round(emission['I0'][j],3),
-    # print
+    ##### print emission table
+    print ' ',
+    for i in alphabet:
+        print i,
+    print
+    print 'S',
+    for i in alphabet:
+        print round(emission['S'][i],3),
+    print
+    print 'I0',
+    for j in alphabet:
+        print round(emission['I0'][j],3),
+    print
 
-    # # print ' '.join([str(x) for x in dict(sorted(emission['I0'].items())).values()])
-    # for i in xrange(1,len(alignment[0])-len(insert_index)+1):
+    # print ' '.join([str(x) for x in dict(sorted(emission['I0'].items())).values()])
+    for i in xrange(1,len(alignment[0])-len(insert_index)+1):
 
-    #     print 'M'+str(i),
-    #     for j in alphabet:
-    #         print round(emission['M'+str(i)][j],3),
-    #     print
+        print 'M'+str(i),
+        for j in alphabet:
+            print round(emission['M'+str(i)][j],3),
+        print
 
-    #     print 'D'+str(i),
-    #     for j in alphabet:
-    #         print round(emission['D'+str(i)][j],3),
-    #     print
-    #     print 'I'+str(i),
-    #     for j in alphabet:
-    #         print round(emission['I'+str(i)][j],3),
-    #     print
+        print 'D'+str(i),
+        for j in alphabet:
+            print round(emission['D'+str(i)][j],3),
+        print
+        print 'I'+str(i),
+        for j in alphabet:
+            print round(emission['I'+str(i)][j],3),
+        print
 
         
 
-    # print 'E',
-    # for j in alphabet:
-    #     print round(emission['E'][j],3),
-    # print
+    print 'E',
+    for j in alphabet:
+        print round(emission['E'][j],3),
+    print
 
 
             
@@ -503,8 +517,8 @@ def seq_align(string, thresh, pseu, alphabet, alignment):
     I = [[0 for i in xrange(len(string)+1)] for i in xrange(rows+1)]
     D = [[0 for i in xrange(len(string)+1)] for i in xrange(rows+1)]
 
-    for i in xrange(1:len(string)+1):
-        for j in xrange(1:row+1):
+    for i in xrange(1,len(string)+1):
+        for j in xrange(1,row+1):
             
             I[j][i] = max(D[j][i-1]*transition['D'+str(j)]['I'+str(j)]*emission['I'+str(i)][string[j]],
                           M[j][i-1]*transition['M'+str(j)]['I'+str(j)]*emission['I'+str(i)][string[j]],
@@ -587,33 +601,33 @@ if __name__ == '__main__':
 
 
 
-    # f = open('test', 'r')
-    # lines = f.readlines()
-    # thresh  = float(lines[0].strip().split()[0])
-    # pseu  = float(lines[0].strip().split()[1])
-
-    # alphabet = lines[2].strip().split()
-    # alignment = []
-    # for i in xrange(4,len(lines)):
-    #     alignment.append(lines[i].strip())
-
-
-    # profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment)
-
-
     f = open('test', 'r')
     lines = f.readlines()
-    string = lines[0].strip()
-    thresh  = float(lines[2].strip().split()[0])
-    pseu  = float(lines[2].strip().split()[1])
+    thresh  = float(lines[0].strip().split()[0])
+    pseu  = float(lines[0].strip().split()[1])
 
-    alphabet = lines[4].strip().split()
+    alphabet = lines[2].strip().split()
     alignment = []
-    for i in xrange(6,len(lines)):
+    for i in xrange(4,len(lines)):
         alignment.append(lines[i].strip())
 
 
-    print seq_align(string, thresh, pseu, alphabet, alignment)
+    profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment)
+
+
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # string = lines[0].strip()
+    # thresh  = float(lines[2].strip().split()[0])
+    # pseu  = float(lines[2].strip().split()[1])
+
+    # alphabet = lines[4].strip().split()
+    # alignment = []
+    # for i in xrange(6,len(lines)):
+    #     alignment.append(lines[i].strip())
+
+
+    # print seq_align(string, thresh, pseu, alphabet, alignment)
 
 
 
