@@ -1,4 +1,5 @@
 import sys, os, re
+import math
 
 def prob(path, transition):
     p = 0.5
@@ -415,70 +416,70 @@ def profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment):
                     if len(transition[key])==2:                        
                         transition[key][sub_key] = 0.5
 
-    # return transition, emission
-    ##### PRINT transition table
-    index_list = ['S', 'I0']
-    for i in xrange(1,len(alignment[0])-len(insert_index)+1):
-        index_list.extend(['M'+str(i), 'D'+str(i), 'I'+str(i)])
-    index_list.append('E')
-    print ' ',
-    for i in index_list:
-        print i,
-    print
-    for i in index_list:
-        print i,
-        if i in transition:
-            for j in index_list:
-                if j in transition[i]:
-                    print round(transition[i][j],3),
-                else:
-                    print 0,
-            print
-        else:
-            for j in index_list:
-                print 0,
-            print
+    return transition, emission
+    # ##### PRINT transition table
+    # index_list = ['S', 'I0']
+    # for i in xrange(1,len(alignment[0])-len(insert_index)+1):
+    #     index_list.extend(['M'+str(i), 'D'+str(i), 'I'+str(i)])
+    # index_list.append('E')
+    # print ' ',
+    # for i in index_list:
+    #     print i,
+    # print
+    # for i in index_list:
+    #     print i,
+    #     if i in transition:
+    #         for j in index_list:
+    #             if j in transition[i]:
+    #                 print round(transition[i][j],3),
+    #             else:
+    #                 print 0,
+    #         print
+    #     else:
+    #         for j in index_list:
+    #             print 0,
+    #         print
 
-    print '--------'
+    # print '--------'
                 
             
-    ##### print emission table
-    print ' ',
-    for i in alphabet:
-        print i,
-    print
-    print 'S',
-    for i in alphabet:
-        print round(emission['S'][i],3),
-    print
-    print 'I0',
-    for j in alphabet:
-        print round(emission['I0'][j],3),
-    print
+    # ##### print emission table
+    # print ' ',
+    # for i in alphabet:
+    #     print i,
+    # print
+    # print 'S',
+    # for i in alphabet:
+    #     print round(emission['S'][i],3),
+    # print
+    # print 'I0',
+    # for j in alphabet:
+    #     print round(emission['I0'][j],3),
+    # print
 
-    # print ' '.join([str(x) for x in dict(sorted(emission['I0'].items())).values()])
-    for i in xrange(1,len(alignment[0])-len(insert_index)+1):
+    # # print ' '.join([str(x) for x in dict(sorted(emission['I0'].items())).values()])
+    # for i in xrange(1,len(alignment[0])-len(insert_index)+1):
 
-        print 'M'+str(i),
-        for j in alphabet:
-            print round(emission['M'+str(i)][j],3),
-        print
+    #     print 'M'+str(i),
+    #     for j in alphabet:
+    #         print round(emission['M'+str(i)][j],3),
+    #     print
 
-        print 'D'+str(i),
-        for j in alphabet:
-            print round(emission['D'+str(i)][j],3),
-        print
-        print 'I'+str(i),
-        for j in alphabet:
-            print round(emission['I'+str(i)][j],3),
-        print
+    #     print 'D'+str(i),
+    #     for j in alphabet:
+    #         print round(emission['D'+str(i)][j],3),
+    #     print
+    #     print 'I'+str(i),
+    #     for j in alphabet:
+    #         print round(emission['I'+str(i)][j],3),
+    #     print
 
         
 
-    print 'E',
-    for j in alphabet:
-        print round(emission['E'][j],3),
-    print
+    # print 'E',
+    # for j in alphabet:
+    #     print round(emission['E'][j],3),
+    # print
 
 
             
@@ -513,22 +514,73 @@ def likelihood(string, states, transition, emission):
 def seq_align(string, thresh, pseu, alphabet, alignment):
     transition, emission = profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment)
     rows = len(emission)/3-1
+
+    index_list = ['S', 'I0']
+    for i in xrange(0,rows):
+        index_list.extend(['M'+str(i), 'D'+str(i), 'I'+str(i)])
+    index_list.append('E')
+    for i in index_list:
+        if not i in transition:
+            transition[i] = {}
+        for j in index_list:
+            if not j in transition[i]:
+                transition[i][j] = 0
+
     M = [[0 for i in xrange(len(string)+1)] for i in xrange(rows+1)]
     I = [[0 for i in xrange(len(string)+1)] for i in xrange(rows+1)]
     D = [[0 for i in xrange(len(string)+1)] for i in xrange(rows+1)]
 
     for i in xrange(1,len(string)+1):
-        for j in xrange(1,row+1):
+        if i == 1:
+            I[0][i] = max(transition['S']['I0']*emission['I0'][string[i-1]],
+                          transition['S']['I0']*emission['I0'][string[i-1]],
+                          transition['S']['I0']*emission['I0'][string[i-1]])
+        else:
+            I[0][i] = max(I[0][i-1]*transition['I0']['I0']*emission['I0'][string[i-1]],
+                          I[0][i-1]*transition['I0']['I0']*emission['I0'][string[i-1]],
+                          I[0][i-1]*transition['I0']['I0']*emission['I0'][string[i-1]])
+
+    for i in xrange(1,rows+1):
+        if i==1:
+            D[i][0] = transition['S']['D'+str(i)]
+        else:
+            D[i][0] = D[i-1][0]*transition['D'+str(i-1)]['D'+str(i)]
+        
             
-            I[j][i] = max(D[j][i-1]*transition['D'+str(j)]['I'+str(j)]*emission['I'+str(i)][string[j]],
-                          M[j][i-1]*transition['M'+str(j)]['I'+str(j)]*emission['I'+str(i)][string[j]],
-                          I[j][i-1]*transition['I'+str(j)]['I'+str(j)]*emission['I'+str(i)][string[j]])
-            M[j][i] = max(I[j-1][i-1]*transition['I'+str(j-1)]['M'+str(j)]*emission['M'+str(i)][string[j-1]],
-                          D[j-1][i-1]*transition['D'+str(j-1)]['M'+str(j)]*emission['M'+str(i)][string[j-1]],
-                          M[j-1][i-1]*transition['M'+str(j-1)]['M'+str(j)]*emission['M'+str(i)][string[j-1]])
-            D[j][i] = max(M[j-1][i]*transition['M'+str(j-1)]['D'+str(j)],
-                          I[j-1][i]*transition['I'+str(j-1)]['D'+str(j)],
-                          D[j-1][i]*transition['D'+str(j-1)]['D'+str(j)])
+
+        
+    for j in xrange(1,rows+1):
+        for i in xrange(1,len(string)+1):
+            if j-1==0 and i == 1:
+                M[j][i] = max(transition['S']['M1']*emission['M'+str(j)][string[i-1]],
+                              transition['S']['M1']*emission['M'+str(j)][string[i-1]],
+                              transition['S']['M1']*emission['M'+str(j)][string[i-1]])
+                D[j][i] = max(transition['S']['D1'], I[j-1][i]*transition['I'+str(j-1)]['D'+str(j)])
+                I[j][i] = max(D[j][i-1]*transition['D'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]],
+                              M[j][i-1]*transition['M'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]],
+                              I[j][i-1]*transition['I'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]])
+
+                # else:
+                #     M[j][i] = max(I[j-1][i-1]*transition['S']['M1']*emission['M'+str(j)][string[i-1]],
+                #                   D[j-1][i-1]*transition['S']['M1']*emission['M'+str(j)][string[i-1]],
+                #                   M[j-1][i-1]*transition['S']['M1']*emission['M'+str(j)][string[i-1]])
+                #     D[j][i] = max(M[j-1][i]*transition['S']['D1'],
+                #                   I[j-1][i]*transition['S']['D1'],
+                #                   D[j-1][i]*transition['S']['D1'])
+
+            else:
+                M[j][i] = max(I[j-1][i-1]*transition['I'+str(j-1)]['M'+str(j)]*emission['M'+str(j)][string[i-1]],
+                              D[j-1][i-1]*transition['D'+str(j-1)]['M'+str(j)]*emission['M'+str(j)][string[i-1]],
+                              M[j-1][i-1]*transition['M'+str(j-1)]['M'+str(j)]*emission['M'+str(j)][string[i-1]])
+                D[j][i] = max(M[j-1][i]*transition['M'+str(j-1)]['D'+str(j)],
+                              I[j-1][i]*transition['I'+str(j-1)]['D'+str(j)],
+                              D[j-1][i]*transition['D'+str(j-1)]['D'+str(j)])
+                I[j][i] = max(D[j][i-1]*transition['D'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]],
+                              M[j][i-1]*transition['M'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]],
+                              I[j][i-1]*transition['I'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]])
+
+
+    return
     
     
         
@@ -601,33 +653,33 @@ if __name__ == '__main__':
 
 
 
-    f = open('test', 'r')
-    lines = f.readlines()
-    thresh  = float(lines[0].strip().split()[0])
-    pseu  = float(lines[0].strip().split()[1])
-
-    alphabet = lines[2].strip().split()
-    alignment = []
-    for i in xrange(4,len(lines)):
-        alignment.append(lines[i].strip())
-
-
-    profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment)
-
-
     # f = open('test', 'r')
     # lines = f.readlines()
-    # string = lines[0].strip()
-    # thresh  = float(lines[2].strip().split()[0])
-    # pseu  = float(lines[2].strip().split()[1])
+    # thresh  = float(lines[0].strip().split()[0])
+    # pseu  = float(lines[0].strip().split()[1])
 
-    # alphabet = lines[4].strip().split()
+    # alphabet = lines[2].strip().split()
     # alignment = []
-    # for i in xrange(6,len(lines)):
+    # for i in xrange(4,len(lines)):
     #     alignment.append(lines[i].strip())
 
 
-    # print seq_align(string, thresh, pseu, alphabet, alignment)
+    # profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment)
+
+
+    f = open('test', 'r')
+    lines = f.readlines()
+    string = lines[0].strip()
+    thresh  = float(lines[2].strip().split()[0])
+    pseu  = float(lines[2].strip().split()[1])
+
+    alphabet = lines[4].strip().split()
+    alignment = []
+    for i in xrange(6,len(lines)):
+        alignment.append(lines[i].strip())
+
+
+    print seq_align(string, thresh, pseu, alphabet, alignment)
 
 
 
