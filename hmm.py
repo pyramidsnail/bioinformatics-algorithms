@@ -510,6 +510,45 @@ def likelihood(string, states, transition, emission):
     return res
 
 
+def soft_decoding(string, states, transition, emission):
+    forward = {}
+    forward[0] = {}
+    for i in states:
+        forward[0][i] = {}
+        forward[0][i] = 1.0/len(states)*emission[i][string[0]] 
+    for i in xrange(1,len(string)):
+        forward[i] = {}
+        for j in states:
+            forward[i][j] = 0
+            for k in states:
+                forward[i][j] += forward[i-1][k]*transition[k][j]*emission[j][string[i]]
+
+    re_string = string[::-1]
+    backward = {}
+    backward[0] = {}
+    for i in states:
+        backward[0][i] = {}
+        backward[0][i] = 1.0*emission[i][re_string[0]] 
+    for i in xrange(1,len(re_string)):
+        backward[i] = {}
+        for j in states:
+            backward[i][j] = 0
+            for k in states:
+                backward[i][j] += backward[i-1][k]*transition[k][j]*emission[j][re_string[i]]
+    res = {}
+    for i in xrange(len(string)):
+        res[i] = {}
+        total = 0
+        for j in states:
+            res[i][j] = forward[i][j]*backward[len(string)-1-i][j]
+            total +=  res[i][j]
+        for j in states:
+            res[i][j] = res[i][j]/total
+
+    return res
+    
+
+
 
 def seq_align(string, thresh, pseu, alphabet, alignment):
     transition, emission = profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment)
@@ -764,14 +803,62 @@ if __name__ == '__main__':
     
 
 
-    ##### Viterbi learning
+    # ##### Viterbi learning
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # num = int(lines[0])
+    # string = lines[2].strip()
+    # alphabet = lines[4].strip().split()
+    # states = lines[6].strip().split()
+
+    # transition = {}
+    # for i in states:
+    #     transition[i] = dict((x,0) for x in states)
+    # emission = {}
+    # for i in states:
+    #      emission[i] = dict((x,0) for x in alphabet)
+
+    # for i in xrange(9,9+len(states)):
+    #     items = lines[i].strip().split()
+    #     for j in xrange(1,len(items)):
+    #         transition[states[i-9]][states[j-1]] = float(items[j])
+
+ 
+    # for i in xrange(13,13+len(states)):
+    #     items = lines[i].strip().split()
+    #     for j in xrange(1,len(items)):
+    #         emission[states[i-13]][alphabet[j-1]] = float(items[j])
+
+    # ac_num = 1
+    # while ac_num<=num:
+    #     path = decoding(string, states, transition, emission)
+    #     transition, emission = parameter_estimation(string, alphabet, path, states)
+    #     ac_num += 1
+
+    # print '  ',
+    # print ' '.join(states)
+    # for i in states:
+    #     print i,
+    #     for j in states:
+    #         print transition[i][j],
+    #     print
+        
+    # print '--------'
+    # print '  ',
+    # print ' '.join(alphabet)
+    # for i in states:
+    #     print i,
+    #     for j in alphabet:
+    #         print emission[i][j],
+    #     print
+
+
+    #####   
     f = open('test', 'r')
     lines = f.readlines()
-    num = int(lines[0])
-    string = lines[2].strip()
-    alphabet = lines[4].strip().split()
-    states = lines[6].strip().split()
-
+    string = lines[0].strip()
+    alphabet = lines[2].strip().split()
+    states = lines[4].strip().split()
     transition = {}
     for i in states:
         transition[i] = dict((x,0) for x in states)
@@ -779,37 +866,18 @@ if __name__ == '__main__':
     for i in states:
          emission[i] = dict((x,0) for x in alphabet)
 
-    for i in xrange(9,9+len(states)):
+
+    for i in xrange(7,7+len(states)):
         items = lines[i].strip().split()
         for j in xrange(1,len(items)):
-            transition[states[i-9]][states[j-1]] = float(items[j])
+            transition[states[i-7]][states[j-1]] = float(items[j])
 
- 
-    for i in xrange(13,13+len(states)):
+    for i in xrange(11,11+len(states)):
         items = lines[i].strip().split()
         for j in xrange(1,len(items)):
-            emission[states[i-13]][alphabet[j-1]] = float(items[j])
+            emission[states[i-11]][alphabet[j-1]] = float(items[j])
 
-    ac_num = 1
-    while ac_num<=num:
-        path = decoding(string, states, transition, emission)
-        transition, emission = parameter_estimation(string, alphabet, path, states)
-        ac_num += 1
 
-    print '  ',
-    print ' '.join(states)
-    for i in states:
-        print i,
-        for j in states:
-            print transition[i][j],
-        print
-        
-    print '--------'
-    print '  ',
-    print ' '.join(alphabet)
-    for i in states:
-        print i,
-        for j in alphabet:
-            print emission[i][j],
-        print
+    res = soft_decoding(string, states, transition, emission)
+    print res
 
