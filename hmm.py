@@ -21,7 +21,7 @@ def decoding(string, states, transition, emission):
     dic[0] = {}
     for i in states:
         dic[0][i] = {}
-        dic[0][i]['p'] = 1.0/len(states)*emission[(i,string[0])] 
+        dic[0][i]['p'] = 1.0/len(states)*emission[i][string[0]]
     for i in xrange(1,len(string)):
         dic[i] = {}
         for j in states:
@@ -29,7 +29,7 @@ def decoding(string, states, transition, emission):
             max_value = -1
             pre_state = '' 
             for k in states:
-                p_value = dic[i-1][k]['p']*transition[(k, j)]*emission[(j,string[i])]
+                p_value = dic[i-1][k]['p']*transition[k][j]*emission[j][string[i]]
                 if p_value > max_value:
                     max_value = p_value
                     pre_state = k
@@ -412,9 +412,9 @@ def profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment):
                     transition[key][sub_key] = (transition[key][sub_key]+pseu)/(1+pseu*len(transition[key]))
                 else:
                     if len(transition[key])==3:                        
-                        transition[key][sub_key] = 0.333
+                        transition[key][sub_key] = 1.0/3
                     if len(transition[key])==2:                        
-                        transition[key][sub_key] = 0.5
+                        transition[key][sub_key] = 1.0/2
 
     return transition, emission
     # ##### PRINT transition table
@@ -555,7 +555,7 @@ def seq_align(string, thresh, pseu, alphabet, alignment):
                 M[j][i] = max(transition['S']['M1']*emission['M'+str(j)][string[i-1]],
                               transition['S']['M1']*emission['M'+str(j)][string[i-1]],
                               transition['S']['M1']*emission['M'+str(j)][string[i-1]])
-                D[j][i] = max(transition['S']['D1'], I[j-1][i]*transition['I'+str(j-1)]['D'+str(j)])
+                D[j][i] = I[j-1][i]*transition['I'+str(j-1)]['D'+str(j)]
                 I[j][i] = max(D[j][i-1]*transition['D'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]],
                               M[j][i-1]*transition['M'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]],
                               I[j][i-1]*transition['I'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]])
@@ -580,8 +580,65 @@ def seq_align(string, thresh, pseu, alphabet, alignment):
                               I[j][i-1]*transition['I'+str(j)]['I'+str(j)]*emission['I'+str(j)][string[i-1]])
 
 
-    return
+    #####  retrieve the mappping sequences
+    res = []
+    state = rows
+    seq = len(string)
+    max_value = 0
+    max_state = ('', 0, 0)
+    next_state = 'E'
+    while seq>0:
+        if I[state][seq] > max_value:
+            max_value =  I[state][seq]*transition['I'+str(state)][next_state]
+            max_state = ('I', state, seq)
+        if M[state][seq] > max_value:
+            max_value =  M[state][seq]*transition['M'+str(state)][next_state]
+            max_state = ('M', state, seq)
+        if D[state][seq] > max_value:
+            max_value =  D[state][seq]*transition['D'+str(state)][next_state]
+            max_state = ('D', state, seq)
+
+        res.insert(0,max_state[0]+str(max_state[1]))
+        next_state = res[0]
+        if max_state[0] == 'I':
+            seq -= 1
+        if max_state[0] == 'D':
+            state -= 1
+        if max_state[0] == 'M':
+            seq -= 1
+            state -= 1
+    return res
     
+
+def parameter_estimation(string, alphabet, path, states):
+    transition = {}
+    for i in states:
+         transition[i] = dict((x,0) for x in states)
+    emission = {}
+    for i in states:
+         emission[i] = dict((x,0) for x in alphabet)
+    for i in xrange(len(path)):
+        if i+1<len(path):
+            transition[path[i]][path[i+1]] += 1
+        emission[path[i]][string[i]] += 1
+
+    for i in transition:
+        total = sum(transition[i].values())
+        for j in transition[i]:
+            if total>0:
+                transition[i][j] = 1.0* transition[i][j]/total
+            else:
+                transition[i][j] = 1.0/len(states)
+
+    for i in emission:
+        total = sum(emission[i].values())
+        for j in emission[i]:
+            if total >0:
+                emission[i][j] = 1.0*emission[i][j]/total
+            else:
+                emission[i][j] = 1.0/len(alphabet)
+
+    return transition, emission
     
         
 
@@ -667,19 +724,92 @@ if __name__ == '__main__':
     # profile_hmm_pseudocounts(thresh, pseu, alphabet, alignment)
 
 
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # string = lines[0].strip()
+    # thresh  = float(lines[2].strip().split()[0])
+    # pseu  = float(lines[2].strip().split()[1])
+
+    # alphabet = lines[4].strip().split()
+    # alignment = []
+    # for i in xrange(6,len(lines)):
+    #     alignment.append(lines[i].strip())
+
+
+    # print ' '.join(seq_align(string, thresh, pseu, alphabet, alignment))
+
+    # f = open('test', 'r')
+    # lines = f.readlines()
+    # string = lines[0].strip()
+    # alphabet = lines[2].strip().split()
+    # path = lines[4].strip() 
+    # states = lines[6].strip().split()
+    # transition, emission = parameter_estimation(string, alphabet, path, states)
+    # print '  ',
+    # print ' '.join(states)
+    # for i in states:
+    #     print i,
+    #     for j in states:
+    #         print transition[i][j],
+    #     print
+        
+    # print '--------'
+    # print '  ',
+    # print ' '.join(alphabet)
+    # for i in states:
+    #     print i,
+    #     for j in alphabet:
+    #         print emission[i][j],
+    #     print
+    
+
+
+    ##### Viterbi learning
     f = open('test', 'r')
     lines = f.readlines()
-    string = lines[0].strip()
-    thresh  = float(lines[2].strip().split()[0])
-    pseu  = float(lines[2].strip().split()[1])
-
+    num = int(lines[0])
+    string = lines[2].strip()
     alphabet = lines[4].strip().split()
-    alignment = []
-    for i in xrange(6,len(lines)):
-        alignment.append(lines[i].strip())
+    states = lines[6].strip().split()
 
+    transition = {}
+    for i in states:
+        transition[i] = dict((x,0) for x in states)
+    emission = {}
+    for i in states:
+         emission[i] = dict((x,0) for x in alphabet)
 
-    print seq_align(string, thresh, pseu, alphabet, alignment)
+    for i in xrange(9,9+len(states)):
+        items = lines[i].strip().split()
+        for j in xrange(1,len(items)):
+            transition[states[i-9]][states[j-1]] = float(items[j])
 
+ 
+    for i in xrange(13,13+len(states)):
+        items = lines[i].strip().split()
+        for j in xrange(1,len(items)):
+            emission[states[i-13]][alphabet[j-1]] = float(items[j])
 
+    ac_num = 1
+    while ac_num<=num:
+        path = decoding(string, states, transition, emission)
+        transition, emission = parameter_estimation(string, alphabet, path, states)
+        ac_num += 1
+
+    print '  ',
+    print ' '.join(states)
+    for i in states:
+        print i,
+        for j in states:
+            print transition[i][j],
+        print
+        
+    print '--------'
+    print '  ',
+    print ' '.join(alphabet)
+    for i in states:
+        print i,
+        for j in alphabet:
+            print emission[i][j],
+        print
 
