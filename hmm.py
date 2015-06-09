@@ -523,24 +523,23 @@ def soft_decoding(string, states, transition, emission):
             for k in states:
                 forward[i][j] += forward[i-1][k]*transition[k][j]*emission[j][string[i]]
 
-    re_string = string[::-1]
     backward = {}
-    backward[0] = {}
+    backward[len(string)-1] = {}
     for i in states:
-        backward[0][i] = {}
-        backward[0][i] = 1.0*emission[i][re_string[0]] 
-    for i in xrange(1,len(re_string)):
+        backward[len(string)-1][i] = {}
+        backward[len(string)-1][i] = 1.0 ###*emission[i][re_string[0]] 
+    for i in range(len(string)-2, -1,-1):
         backward[i] = {}
         for j in states:
             backward[i][j] = 0
             for k in states:
-                backward[i][j] += backward[i-1][k]*transition[k][j]*emission[j][re_string[i]]
+                backward[i][j] += backward[i+1][k]*transition[j][k]*emission[k][string[i+1]]
     res = {}
     for i in xrange(len(string)):
         res[i] = {}
         total = 0
         for j in states:
-            res[i][j] = forward[i][j]*backward[len(string)-1-i][j]
+            res[i][j] = forward[i][j]*backward[i][j]
             total +=  res[i][j]
         for j in states:
             res[i][j] = res[i][j]/total
@@ -872,12 +871,19 @@ if __name__ == '__main__':
         for j in xrange(1,len(items)):
             transition[states[i-7]][states[j-1]] = float(items[j])
 
-    for i in xrange(11,11+len(states)):
+    for i in xrange(9+len(states),9+2*len(states)):
         items = lines[i].strip().split()
         for j in xrange(1,len(items)):
-            emission[states[i-11]][alphabet[j-1]] = float(items[j])
+            emission[states[i-9-len(states)]][alphabet[j-1]] = float(items[j])
 
 
     res = soft_decoding(string, states, transition, emission)
-    print res
+    for i in states:
+        print i,
+    print
+    for i in xrange(len(string)):
+        for j in states:
+            print res[i][j],
+        print
+        
 
