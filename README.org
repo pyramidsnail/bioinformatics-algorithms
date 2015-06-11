@@ -757,3 +757,84 @@ A	B
 0.8167	0.1833
 
 Time Limit: 5 mins
+
+
+* CODE CHALLENGE: Construct the graph of a spectrum.
+     Given: A space-delimited list of integers Spectrum.
+     Return: Graph(Spectrum).
+
+Note: Throughout this chapter, all dataset problems implicitly use the standard integer-valued mass table for the regular twenty amino acids. Examples sometimes use the toy amino acid alphabet {X, Y} whose masses are 4 and 5, respectively.
+
+Extra Dataset
+
+Sample Input:
+57 71 154 185 301 332 415 429 486
+Sample Output:
+0->57:G
+0->71:A
+57->154:P
+57->185:K
+71->185:N
+154->301:F
+185->332:F
+301->415:N
+301->429:K
+332->429:P
+415->486:A
+429->486:G
+
+Time Limit: 5 mins
+
+* CODE CHALLENGE: Solve the Decoding an Ideal Spectrum Problem.
+     Given: A space-delimited list of integers Spectrum.
+     Return: An amino acid string that explains Spectrum.
+
+Extra Dataset
+
+Sample Input:
+57 71 154 185 301 332 415 429 486
+Sample Output:
+GPFNA
+
+Time Limit: 5 mins
+
+* CODE CHALLENGE: Solve the Converting a Peptide into a Peptide Vector Problem.
+     Given: An amino acid string P.
+     Return: The peptide vector of P (in the form of space-separated integers).
+
+Extra Dataset
+
+Sample Input:
+XZZXX
+Sample Output:
+0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0 0 0 1
+
+Time Limit: 5 mins
+
+* CODE CHALLENGE: Solve the Converting a Peptide Vector into a Peptide Problem.
+     Given: A space-delimited binary vector P
+     Return: An amino acid string whose binary peptide vector matches P. For masses
+     with more than one amino acid, any choice may be used.
+
+Extra Dataset
+
+Sample Input:
+0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0 0 0 1
+Sample Output:
+XZZXX
+
+Time Limit: 5 mins
+
+* CODE CHALLENGE: Solve the Peptide Sequencing Problem.
+     Given: A space-delimited spectral vector Spectrum'.
+     Return: An amino acid string with maximum score against Spectrum'. For masses
+     with more than one amino acid, any choice may be used.
+
+Extra Dataset
+
+Sample Input:
+0 0 0 0 4 -2 -3 -1 -7 6 5 3 2 1 9 3 -8 0 3 1 2 1 8
+Sample Output:
+XZZXX
+
+Time Limit: 5 mins
