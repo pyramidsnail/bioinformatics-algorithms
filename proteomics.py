@@ -114,7 +114,15 @@ def peptide(vector):
             first = i
 
     return seq
+
+def toposort(graph, unvisit):
+    for node in graph:
+        if node in unvisit:
+            sort(graph, node)
         
+def peptide_sequencing(spectrum):
+    for i in xrange(len(spectrum))
+    
 
 if __name__ == '__main__':
     # f = open('test', 'r')
@@ -137,6 +145,11 @@ if __name__ == '__main__':
     # for i in res:
     #     print i,
                 
+   # f = open('test', 'r')
+   # vector = f.readline().strip().split()
+   # print peptide(vector)
+
+
    f = open('test', 'r')
-   vector = f.readline().strip().split()
-   print peptide(vector)
+   spectrum = f.readline().strip().split()
+   print peptide_sequencing(spectrum)
