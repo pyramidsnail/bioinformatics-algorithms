@@ -19,9 +19,9 @@ mass = {'G':57,
         'F':147,
         'R':156,
         'Y':163,
-        'W':186,
-        'X':4,
-        'Z':5}
+        'W':186}
+        # 'X':4,
+        # 'Z':5}
 
 def construct_graph(spectrum):
     res = {}
@@ -56,6 +56,15 @@ def bfs_paths(graph, start, goal):
                 yield path + [next]
             else:
                 queue.append((next, path + [next]))
+
+def dfs_paths(graph, start, goal, path=None):
+    if path is None:
+        path = [start]
+    if start == goal:
+        yield path
+    for next in set(graph[start]) - set(path):
+        for i in dfs_paths(graph, next, goal, path + [next]):
+            yield i
 
 def idealSpectrum(seq):
     res = [0]
@@ -121,7 +130,34 @@ def toposort(graph, unvisit):
             sort(graph, node)
         
 def peptide_sequencing(spectrum):
-    for i in xrange(len(spectrum))
+    spectrum = [int(x) for x in spectrum]
+    graph = dict((i,[]) for i in xrange(len(spectrum)))
+    # graph[0] = []
+    
+    for i in xrange(len(spectrum)):
+        for j in mass.values():
+            if i+j<len(spectrum):
+                graph[i].append(i+j)
+
+    # spectrum.insert(0,0)
+    # paths = bfs_paths(graph, 0, len(spectrum)-1)
+    paths = dfs_paths(graph, 0, len(spectrum)-1)
+    max_value = -1000000000
+    max_path = []
+    for path in paths:
+        total = 0
+        for i in path:
+            total += spectrum[i]
+        if total>max_value:
+            max_value = total
+            max_path = path
+
+    seq = ''
+    for i in xrange(1, len(max_path)):
+        seq += mass.keys()[mass.values().index(max_path[i]-max_path[i-1])]
+        
+
+    return seq
     
 
 if __name__ == '__main__':
