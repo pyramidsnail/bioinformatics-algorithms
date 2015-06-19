@@ -19,9 +19,9 @@ mass = {'G':57,
         'F':147,
         'R':156,
         'Y':163,
-        'W':186}
-        # 'X':4,
-        # 'Z':5}
+        'W':186,
+        'X':4,
+        'Z':5}
 
 def construct_graph(spectrum):
     res = {}
@@ -160,6 +160,47 @@ def peptide_sequencing(spectrum):
     return seq
     
 
+def peptide_identification(spectrum, proteome):
+    
+    spectrum = [int(x) for x in spectrum]
+    graph = dict((i,[]) for i in xrange(len(spectrum)))
+    
+    for i in xrange(len(spectrum)):
+        for j in mass.values():
+            if i+j<len(spectrum):
+                graph[i].append(i+j)
+
+    paths = dfs_paths(graph, 0, len(spectrum)-1)
+    max_value = -1000000000
+    max_path = []
+    max_seq = ''
+    for path in paths:
+        total = 0
+        seq = ''
+        for i in xrange(1, len(path)):
+            seq += mass.keys()[mass.values().index(path[i]-path[i-1])]
+        if seq in proteome:
+
+            for i in path:
+                total += spectrum[i]
+            if total>max_value:
+                max_value = total
+                max_path = path
+                max_seq = seq
+        
+
+    return max_seq, max_value
+    
+    
+def PSMSearch(spectral_vectors, proteome, threshold):
+    PSMSet = []
+    for vector in spectral_vectors:
+        vector = vector.strip().split()
+        seq, value = peptide_identification(vector, proteome)
+        if value >= threshold:
+            PSMSet.append(seq)
+    return PSMSet
+    
 if __name__ == '__main__':
     # f = open('test', 'r')
     # spectrum = f.readline().strip().split()
@@ -186,6 +227,21 @@ if __name__ == '__main__':
    # print peptide(vector)
 
 
+   # f = open('test', 'r')
+   # spectrum = f.readline().strip().split()
+   # print peptide_sequencing(spectrum)
+
+
+   # f = open('test', 'r')
+   # spectrum = f.readline().strip().split()
+   # proteome = f.readline().strip() 
+   # print peptide_identification(spectrum, proteome)
+
    f = open('test', 'r')
-   spectrum = f.readline().strip().split()
-   print peptide_sequencing(spectrum)
+   lines = f.readlines()
+   spectral_vectors = lines[0:len(lines)-2]
+   proteome = lines[-2].strip()
+   threshold = int(lines[-1])
+   PSMSet = PSMSearch(spectral_vectors, proteome, threshold)
+   for i in PSMSet:
+       print i
