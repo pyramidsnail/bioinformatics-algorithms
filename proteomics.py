@@ -66,6 +66,7 @@ def dfs_paths(graph, start, goal, path=None):
         for i in dfs_paths(graph, next, goal, path + [next]):
             yield i
 
+def find_all_paths(graph, start, goal, path=None)
 def idealSpectrum(seq):
     res = [0]
     pre = 0
