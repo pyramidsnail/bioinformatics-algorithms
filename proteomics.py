@@ -66,7 +66,19 @@ def dfs_paths(graph, start, goal, path=None):
         for i in dfs_paths(graph, next, goal, path + [next]):
             yield i
 
-def find_all_paths(graph, start, goal, path=None)
+def find_all_paths(graph, start, goal, path=None):
+    if path is None:
+        path = [start]
+    if start == goal:
+        yield path
+    for next in graph[start]:
+        for i in find_all_paths(graph, next, goal, path+[next]):
+            yield i
+
+
+def find_max_paths(graph):
+    
+    
 def idealSpectrum(seq):
     res = [0]
     pre = 0
@@ -171,7 +183,8 @@ def peptide_identification(spectrum, proteome):
             if i+j<len(spectrum):
                 graph[i].append(i+j)
 
-    paths = dfs_paths(graph, 0, len(spectrum)-1)
+    # paths = dfs_paths(graph, 0, len(spectrum)-1)
+    paths = find_all_paths(graph, 0, len(spectrum)-1)
     max_value = -1000000000
     max_path = []
     max_seq = ''
