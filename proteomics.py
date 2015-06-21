@@ -77,6 +77,10 @@ def find_all_paths(graph, start, goal, path=None):
 
 
 def find_max_paths(graph):
+    '''
+    takes too much time to build the DAG
+    '''
+    return 
     
     
 def idealSpectrum(seq):
@@ -174,7 +178,7 @@ def peptide_sequencing(spectrum):
     
 
 def peptide_identification(spectrum, proteome):
-    
+    '''
     spectrum = [int(x) for x in spectrum]
     graph = dict((i,[]) for i in xrange(len(spectrum)))
     
@@ -204,13 +208,64 @@ def peptide_identification(spectrum, proteome):
         
 
     return max_seq, max_value
+    '''
+    length = len(proteome)
+    subs = [proteome[i:j+1] for i in xrange(length) for j in xrange(i,length)]
+    max_value = -1000000000
+    max_seq = ''
+    for sub in subs:
+        if weight(sub) == len(spectrum)-1:
+            if peptide_score(sub, spectrum) > max_value:
+                max_value = peptide_score
+                max_seq = sub
+    return max_seq, max_value
+            
+        
+def peptide_identification_subs(spectrum, subs):
+    # length = len(proteome)
+    # subs = [proteome[i:j+1] for i in xrange(length) for j in xrange(i,length)]
+    max_value = -1000000000
+    max_seq = ''
+    for sub in subs:
+        if peptide_score(sub, spectrum) > max_value:
+            max_value = peptide_score
+            max_seq = sub
+    return max_seq, max_value
     
+def weight(seq):
+    total = 0
+    for i in seq:
+        total += mass[i]
+    return total
+
+def peptide_score(seq, spectrum):
+    value = 0
+    index = 0
+    for i in seq:
+        index += mass[i]
+        value += int(spectrum[index])
+    return value
+        
+
     
 def PSMSearch(spectral_vectors, proteome, threshold):
     PSMSet = []
+    length = len(proteome)
+    vector_length = [len(i)-1 for i in spectral_vectors]
+    # subs = [proteome[i:j+1] for i in xrange(length) for j in xrange(i,length)]
+    sub_weight = dict((i,[]) for i in vector_length)
+    for i in xrange(length):
+        for j in xrange(i+1, length):
+            if weight(proteome[i,j+1]) in vector_length:
+                sub_weight[weight(proteome[i,j+1])].append(proteome[i,j+1])
+    # for i in subs:
+    #     if weight(i) not in sub_weight:
+    #         sub_weight[weight(i)] = []
+    #     sub_weight[weight(i)].append(i)
+    
     for vector in spectral_vectors:
         vector = vector.strip().split()
-        seq, value = peptide_identification(vector, proteome)
+        seq, value = peptide_identification_subs(vector, sub_weight[len(vector)-1])
         if value >= threshold:
             PSMSet.append(seq)
     return PSMSet
@@ -251,7 +306,7 @@ if __name__ == '__main__':
    # proteome = f.readline().strip() 
    # print peptide_identification(spectrum, proteome)
 
-   f = open('test', 'r')
+   f = open('test_large', 'r')
    lines = f.readlines()
    spectral_vectors = lines[0:len(lines)-2]
    proteome = lines[-2].strip()
