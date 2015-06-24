@@ -279,6 +279,54 @@ def PSMSearch(spectral_vectors, proteome, threshold):
             if value >= threshold:
                 PSMSet.append(seq)
     return PSMSet
+
+
+def spectral_dic_size(spectrum, threshold, max_score):
+    spectrum.insert(0,0)
+    min_score = 0
+    for i in spectrum:
+        if i<0:
+            min_score += i
+
+    size = dict((x,[0]*len(spectrum)) for x in xrange(min_score, max_score+1))
+    size[0][0] = 1
+    for i in xrange(len(spectrum)):
+        for score in size.keys():
+            for j in mass.values():
+                if i-j>=0 and (score-spectrum[i]) in size:
+                    size[score][i] += size[score-spectrum[i]][i-j]
+
+    total = 0
+    for i in xrange(threshold, max_score+1):
+        total += size[i][len(spectrum)-1]
+
+    return total
+
+def spectral_dic_prob(spectrum, threshold, max_score):
+    spectrum.insert(0,0)
+
+    min_score = 0
+    for i in spectrum:
+        if i<0:
+            min_score += i
+
+    prob = dict((x,[0]*len(spectrum)) for x in xrange(min_score, max_score+1))
+    prob[0][0] = 1
+    for i in xrange(len(spectrum)):
+        for score in prob.keys():
+            for j in mass.values():
+                if i-j>=0 and (score-spectrum[i]) in prob:
+                    prob[score][i] += 0.05*prob[score-spectrum[i]][i-j]
+
+    total = 0
+    for i in xrange(threshold, max_score+1):
+        total += prob[i][len(spectrum)-1]
+
+    return total
+
+
+
+    
     
 if __name__ == '__main__':
     # f = open('test', 'r')
@@ -316,11 +364,20 @@ if __name__ == '__main__':
    # proteome = f.readline().strip() 
    # print peptide_identification(spectrum, proteome)
 
+   # f = open('test', 'r')
+   # lines = f.readlines()
+   # spectral_vectors = lines[0:len(lines)-2]
+   # proteome = lines[-2].strip()
+   # threshold = int(lines[-1])
+   # PSMSet = PSMSearch(spectral_vectors, proteome, threshold)
+   # for i in PSMSet:
+   #     print i
+
+
    f = open('test', 'r')
    lines = f.readlines()
-   spectral_vectors = lines[0:len(lines)-2]
-   proteome = lines[-2].strip()
-   threshold = int(lines[-1])
-   PSMSet = PSMSearch(spectral_vectors, proteome, threshold)
-   for i in PSMSet:
-       print i
+   spectrum = [int(x) for x in lines[0].strip().split()]
+   threshold = int(lines[1])
+   max_score = int(lines[2])
+   # print spectral_dic_size(spectrum, threshold, max_score)
+   print spectral_dic_prob(spectrum, threshold, max_score)
