@@ -210,15 +210,19 @@ def peptide_identification(spectrum, proteome):
     return max_seq, max_value
     '''
     length = len(proteome)
-    subs = [proteome[i:j+1] for i in xrange(length) for j in xrange(i,length)]
     max_value = -1000000000
     max_seq = ''
-    for sub in subs:
-        if weight(sub) == len(spectrum)-1:
-            if peptide_score(sub, spectrum) > max_value:
-                max_value = peptide_score
-                max_seq = sub
-    return max_seq, max_value
+    for i in xrange(length):
+        for j in xrange(i+1, length):
+            if weight(proteome[i:j+1]) == len(spectrum):
+                if peptide_score(proteome[i:j+1], spectrum) > max_value:
+                    max_value = peptide_score(proteome[i:j+1], spectrum)
+                    max_seq = proteome[i:j+1]
+            if weight(proteome[i:j+1]) > len(spectrum):
+                break
+
+
+    return max_seq
             
         
 def peptide_identification_subs(spectrum, subs):
@@ -226,9 +230,10 @@ def peptide_identification_subs(spectrum, subs):
     # subs = [proteome[i:j+1] for i in xrange(length) for j in xrange(i,length)]
     max_value = -1000000000
     max_seq = ''
+
     for sub in subs:
         if peptide_score(sub, spectrum) > max_value:
-            max_value = peptide_score
+            max_value = peptide_score(sub, spectrum)
             max_seq = sub
     return max_seq, max_value
     
@@ -240,7 +245,7 @@ def weight(seq):
 
 def peptide_score(seq, spectrum):
     value = 0
-    index = 0
+    index = -1
     for i in seq:
         index += mass[i]
         value += int(spectrum[index])
@@ -251,13 +256,17 @@ def peptide_score(seq, spectrum):
 def PSMSearch(spectral_vectors, proteome, threshold):
     PSMSet = []
     length = len(proteome)
-    vector_length = [len(i)-1 for i in spectral_vectors]
+    vector_length = []
+    for i in spectral_vectors:
+        vector_length.append(len(i.strip().split()))
     # subs = [proteome[i:j+1] for i in xrange(length) for j in xrange(i,length)]
     sub_weight = dict((i,[]) for i in vector_length)
     for i in xrange(length):
         for j in xrange(i+1, length):
-            if weight(proteome[i,j+1]) in vector_length:
-                sub_weight[weight(proteome[i,j+1])].append(proteome[i,j+1])
+            if weight(proteome[i:j+1]) in vector_length:
+                sub_weight[weight(proteome[i:j+1])].append(proteome[i:j+1])
+            if weight(proteome[i:j+1]) > max(vector_length):
+                break
     # for i in subs:
     #     if weight(i) not in sub_weight:
     #         sub_weight[weight(i)] = []
@@ -265,9 +274,10 @@ def PSMSearch(spectral_vectors, proteome, threshold):
     
     for vector in spectral_vectors:
         vector = vector.strip().split()
-        seq, value = peptide_identification_subs(vector, sub_weight[len(vector)-1])
-        if value >= threshold:
-            PSMSet.append(seq)
+        if len(vector) in sub_weight:
+            seq, value = peptide_identification_subs(vector, sub_weight[len(vector)])
+            if value >= threshold:
+                PSMSet.append(seq)
     return PSMSet
     
 if __name__ == '__main__':
@@ -306,7 +316,7 @@ if __name__ == '__main__':
    # proteome = f.readline().strip() 
    # print peptide_identification(spectrum, proteome)
 
-   f = open('test_large', 'r')
+   f = open('test', 'r')
    lines = f.readlines()
    spectral_vectors = lines[0:len(lines)-2]
    proteome = lines[-2].strip()
